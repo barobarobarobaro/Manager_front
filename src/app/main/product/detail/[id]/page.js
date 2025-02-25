@@ -145,7 +145,7 @@ export default function ProductDetailPage({ params }) {
                 </div>
                 
                 {/* 추가 정보 탭 */}
-                <div className="border-t">
+                {/* <div className="border-t">
                     <div className="p-6">
                         <h2 className="text-xl font-bold mb-4">영양 정보</h2>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -167,7 +167,7 @@ export default function ProductDetailPage({ params }) {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

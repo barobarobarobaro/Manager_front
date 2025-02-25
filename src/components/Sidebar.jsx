@@ -88,22 +88,38 @@ export default function Sidebar() {
                 <hr className="my-2 border-gray-600" />
 
                 <CollapsibleNavSection title="판매 관리">
-                    <li className="px-6 py-2 hover:bg-gray-700">주문 통합 검색</li>
-                    <li className="px-6 py-2 hover:bg-gray-700">주문 확인</li>
-                    <li className="px-6 py-2 hover:bg-gray-700">배송 현황 관리</li>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/sellmanagement/searchorder">주문 통합 검색</Link>
+                    </li>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/sellmanagement/checkorder">주문 확인</Link>
+                    </li>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/sellmanagement/manageshipping">배송 현황 관리</Link>
+                    </li>
                 </CollapsibleNavSection>
                 <hr className="my-2 border-gray-600" />
 
                 <CollapsibleNavSection title="정산 관리">
-                    <li className="px-6 py-2 hover:bg-gray-700">정산 내역 (일별/건별)</li>
-                    <li className="px-6 py-2 hover:bg-gray-700">세금계산서 발급 및 조회</li>
-                    <li className="px-6 py-2 hover:bg-gray-700">배송 현황 관리</li>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/settlement/content">정산 내역</Link>
+                    </li>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/settlement/taxbill">세금계산서 발급 및 조회</Link>
+                    </li>
                 </CollapsibleNavSection>
                 <hr className="my-2 border-gray-600" />
 
-                <CollapsibleNavSection title="문의/리뷰 관리">
-                    <li className="px-6 py-2 hover:bg-gray-700">문의 관리</li>
-                    <li className="px-6 py-2 hover:bg-gray-700">리뷰 관리</li>
+                <CollapsibleNavSection title="고객 응대">
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/customerservice/qna">문의 관리</Link>
+                    </li>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/customerservice/review">리뷰 관리</Link>
+                    </li>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/customerservice/notice">공지사항 관리</Link>
+                    </li>
                 </CollapsibleNavSection>
             </nav>
         </div>

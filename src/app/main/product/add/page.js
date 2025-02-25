@@ -27,13 +27,6 @@ export default function AddProductPage() {
     description: "",
     images: [],
     origin: "국내산",
-    nutritionInfo: {
-      calories: 0,
-      protein: 0,
-      carbs: 0,
-      fat: 0,
-      fiber: 0
-    },
     storageMethod: "",
     expiration: "",
     specification: "",
