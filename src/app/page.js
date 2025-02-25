@@ -1,6 +1,10 @@
 import Image from "next/image";
+// app/page.js
+import { redirect } from "next/navigation";
+
 
 export default function Home() {
+  redirect("/login");
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -20,7 +24,7 @@ export default function Home() {
             </code>
             .
           </li>
-          <li>Save and see your changes instantly.</li>
+          <li>Save and see your </li>
         </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
@@ -58,7 +62,7 @@ export default function Home() {
         >
           <Image
             aria-hidden
-            src="/file.svg"
+            src="/icons/file.svg"
             alt="File icon"
             width={16}
             height={16}
@@ -73,7 +77,7 @@ export default function Home() {
         >
           <Image
             aria-hidden
-            src="/window.svg"
+            src="/icons/window.svg"
             alt="Window icon"
             width={16}
             height={16}
@@ -88,7 +92,7 @@ export default function Home() {
         >
           <Image
             aria-hidden
-            src="/globe.svg"
+            src="/icons/globe.svg"
             alt="Globe icon"
             width={16}
             height={16}
