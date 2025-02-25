@@ -80,8 +80,10 @@ export default function Sidebar() {
                     <li className="px-6 py-2 hover:bg-gray-700">
                         <Link href="/main/product/list">상품 조회 / 수정</Link>
                     </li>
-                    <li className="px-6 py-2 hover:bg-gray-700">상품 등록</li>
-                    <li className="px-6 py-2 hover:bg-gray-700">상품 일괄등록</li>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/main/product/add">상품 등록</Link>
+                    </li>
+                    {/* <li className="px-6 py-2 hover:bg-gray-700">상품 일괄등록</li> */}
                 </CollapsibleNavSection>
                 <hr className="my-2 border-gray-600" />
 

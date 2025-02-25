@@ -1,0 +1,30 @@
+
+
+
+export const products= [
+        { id: 1, name: "유기농 사과 1kg (4~5개)", price: 12000, stock: 50, category: "과일", created: "2025-01-15" },
+        { id: 2, name: "신선한 토마토 500g (3~4개)", price: 8000, stock: 35, category: "채소", created: "2025-01-18" },
+        { id: 3, name: "국내산 참외 2kg (6~8개)", price: 15000, stock: 5, category: "과일", created: "2025-01-20" },
+        { id: 4, name: "제철 멜론 1개 (1.5kg 내외)", price: 24000, stock: 0, category: "과일", created: "2025-01-05" },
+        { id: 5, name: "껍질째 먹는 수박 1통 (6kg 내외)", price: 18000, stock: 12, category: "과일", created: "2025-01-22" },
+        { id: 6, name: "유기농 양파 3kg (8~10개)", price: 6000, stock: 80, category: "채소", created: "2025-01-10" },
+        { id: 7, name: "당도 높은 귤 3kg (30~35개)", price: 9000, stock: 0, category: "과일", created: "2025-01-08" },
+        { id: 8, name: "싱싱한 고구마 2kg", price: 7500, stock: 45, category: "채소", created: "2025-01-12" },
+        { id: 9, name: "친환경 당근 1kg (4~5개)", price: 5500, stock: 30, category: "채소", created: "2025-01-25" },
+        { id: 10, name: "제주 한라봉 2kg (10개 내외)", price: 22000, stock: 8, category: "과일", created: "2025-01-19" },
+        { id: 11, name: "제철 딸기 500g (한 팩)", price: 16000, stock: 15, category: "과일", created: "2025-02-01" },
+        { id: 12, name: "친환경 배추 1포기 (3~4kg)", price: 8500, stock: 0, category: "채소", created: "2025-01-15" },
+        { id: 13, name: "아삭한 오이 10개 묶음", price: 4800, stock: 60, category: "채소", created: "2025-01-28" },
+        { id: 14, name: "제철 무 1개 (1kg 내외)", price: 5200, stock: 40, category: "채소", created: "2025-01-22" },
+        { id: 15, name: "껍질 얇은 감자 2kg", price: 7800, stock: 65, category: "채소", created: "2025-01-15" },
+        { id: 16, name: "유기농 샐러드 200g (1팩)", price: 9500, stock: 3, category: "채소", created: "2025-02-05" },
+        { id: 17, name: "유기농 체리 500g (1팩)", price: 28000, stock: 0, category: "과일", created: "2025-01-08" },
+        { id: 18, name: "국내산 파인애플 1개 (1.5kg 내외)", price: 19000, stock: 10, category: "과일", created: "2025-01-30" },
+        { id: 19, name: "신선한 가지 3개 묶음", price: 5800, stock: 25, category: "채소", created: "2025-01-18" },
+        { id: 20, name: "아삭한 청포도 1kg (2송이 내외)", price: 13500, stock: 7, category: "과일", created: "2025-02-02" },
+        { id: 21, name: "유기농 레몬 5개 묶음", price: 7000, stock: 20, category: "과일", created: "2025-02-01" },
+        { id: 22, name: "제철 고수 100g (1묶음)", price: 3500, stock: 4, category: "허브", created: "2025-01-25" },
+        { id: 23, name: "신선한 바질 50g (1팩)", price: 4500, stock: 0, category: "허브", created: "2025-01-20" },
+        { id: 24, name: "향긋한 로즈마리 30g (1팩)", price: 5000, stock: 8, category: "허브", created: "2025-01-15" },
+        { id: 25, name: "유기농 애플망고 2개 세트", price: 25000, stock: 15, category: "수입과일", created: "2025-02-05" },
+    ];
