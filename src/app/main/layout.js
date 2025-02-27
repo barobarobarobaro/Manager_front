@@ -31,20 +31,19 @@ export default function MainLayout({ children }) {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // 모바일에서 ESC 키로 사이드바 닫기
   useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === 'Escape' && window.innerWidth < 768) {
-        setSidebarOpen(false);
-      }
+    const handleTouchMove = (e) => {
+      e.stopPropagation();
     };
 
-    window.addEventListener('keydown', handleEsc);
+    if (sidebarOpen) {
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    }
 
     return () => {
-      window.removeEventListener('keydown', handleEsc);
+      document.removeEventListener("touchmove", handleTouchMove);
     };
-  }, []);
+  }, [sidebarOpen]);
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -65,7 +64,11 @@ export default function MainLayout({ children }) {
           {/* 배경 오버레이 - 클릭하면 사이드바 닫힘 */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-            onMouseDown={() => setSidebarOpen(false)}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setSidebarOpen(false);
+              }
+            }}
           ></div>
 
           {/* 사이드바 컨텐츠 */}
