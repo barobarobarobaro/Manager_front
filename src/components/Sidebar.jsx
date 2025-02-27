@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import userService from "@/services/userService";
+
 function CollapsibleNavSection({ title, children }) {
     const [open, setOpen] = useState(false);
     const toggleOpen = () => setOpen(!open);
@@ -54,18 +56,80 @@ function CollapsibleNavSection({ title, children }) {
 }
 
 export default function Sidebar() {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // 사용자 정보 로드
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                setLoading(true);
+                const response = await userService.getCurrentUser();
+                setUser(response.data);
+            } catch (error) {
+                console.error("사용자 정보 로드 실패:", error);
+                setError("사용자 정보를 불러오는데 실패했습니다");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    // 프로필 이미지 렌더링 함수
+    const renderProfileImage = () => {
+        if (loading) {
+            // 로딩 중 표시
+            return (
+                <div className="w-32 h-32 rounded-full bg-gray-600 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
+                </div>
+            );
+        }
+
+        if (error || !user) {
+            // 오류 또는 사용자 정보가 없을 때 기본 이미지
+            return (
+                <div className="w-32 h-32 rounded-full bg-gray-600 flex items-center justify-center text-3xl">
+                    👤
+                </div>
+            );
+        }
+
+        // 사용자 프로필 이미지 표시
+        return (
+            <img
+                src={user.profileImage || "/images/profile.jpeg"}
+                alt="프로필 사진"
+                className="w-32 h-32 rounded-full mb-2 object-cover"
+            />
+        );
+    };
+
     return (
         <div className="h-full top-0 left-0 h-full w-64 bg-gray-800 text-white">
             <div className="p-6 flex flex-col items-center">
                 {/* 프로필 영역 */}
-                <img
-                    src="/images/profile.jpeg"
-                    alt="프로필 사진"
-                    className="w-32 h-32 rounded-full mb-2"
-                />
-                <h2 className="text-2xl font-bold mb-1">화정 팜</h2>
-                <span className="text-sm text-gray-300">
-                    <Link href="/main/profile">프로필 수정</Link>
+                {renderProfileImage()}
+                
+                <h2 className="text-2xl font-bold mb-1">
+                    {loading ? "로딩 중..." : user?.businessName || user?.name || "이름 없음"}
+                </h2>
+                <p>
+                    {loading ? "로딩 중..." : user?.name || "카테고리 없음"}
+                </p>
+                
+                {!loading && user && (
+                    <div className="text-center">
+                        <span className="text-sm text-gray-300 block mb-1">{user.email}</span>
+                        <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">판매자</span>
+                    </div>
+                )}
+                
+                <span className="text-sm text-gray-300 mt-3">
+                    <Link href="/main/profile" className="hover:text-white hover:underline">프로필 수정</Link>
                 </span>
             </div>
 
@@ -125,5 +189,3 @@ export default function Sidebar() {
         </div>
     );
 }
-
-

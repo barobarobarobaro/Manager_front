@@ -1,5 +1,5 @@
 // services/apiClient.js
-import { products as mockProducts } from './mockData';
+import { products as mockProducts } from '../datas/mockData/mockProducts';
 
 // 개발환경에서 사용할 지연시간 (ms)
 const DELAY = 300;

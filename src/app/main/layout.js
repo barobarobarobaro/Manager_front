@@ -26,10 +26,25 @@ export default function MainLayout({ children }) {
     };
   }, []);
 
-  // 모바일에서 햄버거 버튼으로 열고 닫기
+  // 모바일에서 사이드바 열고 닫기
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  // 모바일에서 ESC 키로 사이드바 닫기
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && window.innerWidth < 768) {
+        setSidebarOpen(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleEsc);
+    
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -44,12 +59,36 @@ export default function MainLayout({ children }) {
         </button>
       </header>
 
-      {/* 사이드바 (md 이상이면 항상 열림, md 미만이면 sidebarOpen이 true일 때만 표시) */}
+      {/* 모바일 사이드바 오버레이 (md 미만에서만 적용) */}
       {sidebarOpen && (
-        <aside className="w-64 bg-gray-800 text-white md:block md:w-64 md:h-auto">
-          <Sidebar />
-        </aside>
+        <div className="md:hidden fixed inset-0 z-40 flex">
+          {/* 배경 오버레이 - 클릭하면 사이드바 닫힘 */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+            onClick={() => setSidebarOpen(false)}
+          ></div>
+          
+          {/* 사이드바 컨텐츠 */}
+          <div className="relative flex-1 flex flex-col w-full max-w-xs bg-gray-800 text-white shadow-xl">
+            <div className="absolute top-0 right-0 p-4">
+              <button 
+                onClick={() => setSidebarOpen(false)}
+                className="text-white focus:outline-none"
+              >
+                Close
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <Sidebar />
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* 데스크탑 사이드바 (md 이상에서만 표시) */}
+      <aside className="hidden md:block w-64 bg-gray-800 text-white">
+        <Sidebar />
+      </aside>
 
       {/* 메인 컨텐츠 */}
       <main className="flex-1 bg-gray-100 p-6">

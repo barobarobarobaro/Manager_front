@@ -1,6 +1,5 @@
 "use client";
 
-import Sidebar from "@/components/Sidebar";
 import OrderStatusWidget from "@/components/OrderStatusWidget";
 import SalesChart from "@/components/SalesChart";
 import StockStatusWidget from "@/components/StockStatusWidget";
@@ -30,14 +29,6 @@ export default function AdminDashboard() {
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row">
-            {/* 모바일 메뉴 토글 버튼 */}
-            <button 
-                className="md:hidden bg-blue-500 text-white p-2 m-2 rounded"
-                onClick={toggleSidebar}
-            >
-                {isSidebarOpen ? '메뉴 닫기' : '메뉴 열기'}
-            </button>
-
             {/* 메인 컨텐츠 영역 */}
             <main className="flex-1 bg-gray-100 p-4 md:p-6">
                 <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">메인 대시보드</h1>
