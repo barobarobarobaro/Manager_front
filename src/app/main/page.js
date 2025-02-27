@@ -14,6 +14,8 @@ export default function AdminDashboard() {
         { label: "신규주문", count: 2 },
         { label: "예약구매", count: 1 },
         { label: "배송준비", count: 3 },
+        { label: "배송중", count: 5 },
+        { label: "배송완료", count: 3 },
     ];
 
     const stockItems = [

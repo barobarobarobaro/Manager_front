@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FiStar, FiMessageSquare, FiFilter, FiDownload } from "react-icons/fi";
+import { FiStar, FiMessageSquare, FiFilter, FiDownload, FiX, FiCheck } from "react-icons/fi";
+import RichTextEditor from "@/components/common/RichTextEditor";
 
 export default function ReviewManagementPage() {
     // 리뷰 상태 및 로딩 상태 관리를 위한 상태 변수
@@ -9,6 +10,10 @@ export default function ReviewManagementPage() {
     const [filter, setFilter] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedReview, setExpandedReview] = useState(null);
+    
+    // 답변 관련 상태
+    const [replyingTo, setReplyingTo] = useState(null);
+    const [replyContent, setReplyContent] = useState("");
 
     // 모의 리뷰 데이터 (실제 애플리케이션에서는 API에서 가져올 데이터)
     const mockReviews = [
@@ -46,7 +51,7 @@ export default function ReviewManagementPage() {
             sellerResponse: null
         },
         {
-            id: 3,
+            id: 4, // ID가 3에서 4로 수정되었습니다(중복 key 해결)
             productName: "제철 딸기 500g",
             customerName: "박민준",
             rating: 3,
@@ -90,6 +95,50 @@ export default function ReviewManagementPage() {
     // 리뷰 상세 내용 토글 함수
     const toggleReviewExpand = (reviewId) => {
         setExpandedReview(expandedReview === reviewId ? null : reviewId);
+        // 답변 모드를 닫음
+        setReplyingTo(null);
+    };
+
+    // 답변 모드 시작
+    const startReplying = (reviewId) => {
+        const review = reviews.find(r => r.id === reviewId);
+        setReplyingTo(reviewId);
+        // 기존 답변이 있으면 에디터에 표시
+        setReplyContent(review.sellerResponse || "");
+    };
+
+    // 답변 취소
+    const cancelReply = () => {
+        setReplyingTo(null);
+        setReplyContent("");
+    };
+
+    // 답변 저장
+    const saveReply = (reviewId) => {
+        // 실제로는 API 호출로 저장해야 함
+        const updatedReviews = reviews.map(review => 
+            review.id === reviewId
+                ? { ...review, sellerResponse: replyContent }
+                : review
+        );
+        
+        setReviews(updatedReviews);
+        setReplyingTo(null);
+        setReplyContent("");
+        alert("답변이 저장되었습니다.");
+    };
+
+    // 리뷰 상태 변경 함수
+    const changeReviewStatus = (reviewId, newStatus) => {
+        // 실제로는 API 호출로 상태 변경
+        const updatedReviews = reviews.map(review => 
+            review.id === reviewId
+                ? { ...review, status: newStatus }
+                : review
+        );
+        
+        setReviews(updatedReviews);
+        alert(`리뷰가 ${newStatus} 상태로 변경되었습니다.`);
     };
 
     // 엑셀 다운로드 함수
@@ -106,6 +155,7 @@ export default function ReviewManagementPage() {
                     <FiStar
                         key={star}
                         className={`${star <= rating ? 'text-yellow-500' : 'text-gray-300'} w-5 h-5`}
+                        fill={star <= rating ? 'currentColor' : 'none'}
                     />
                 ))}
             </div>
@@ -140,7 +190,9 @@ export default function ReviewManagementPage() {
                     <div>
                         <p className="text-sm text-gray-500">평균 별점</p>
                         <p className="text-xl font-bold">
-                            {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}
+                            {reviews.length > 0 
+                                ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) 
+                                : "0.0"}
                         </p>
                     </div>
                 </div>
@@ -245,10 +297,10 @@ export default function ReviewManagementPage() {
                                     {expandedReview === review.id && (
                                         <tr>
                                             <td colSpan="6" className="px-6 py-4 bg-gray-50">
-                                                <div className="space-y-2">
+                                                <div className="space-y-4">
                                                     <div>
                                                         <span className="font-medium">리뷰 내용:</span>
-                                                        <p>{review.content}</p>
+                                                        <p className="mt-1">{review.content}</p>
                                                     </div>
                                                     {review.imageUrls.length > 0 && (
                                                         <div>
@@ -265,22 +317,87 @@ export default function ReviewManagementPage() {
                                                             </div>
                                                         </div>
                                                     )}
-                                                    {review.sellerResponse && (
-                                                        <div>
-                                                            <span className="font-medium">판매자 답변:</span>
-                                                            <p>{review.sellerResponse}</p>
+                                                    
+                                                    {/* 판매자 답변 섹션 */}
+                                                    {replyingTo === review.id ? (
+                                                        <div className="mt-4">
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <span className="font-medium">판매자 답변 작성:</span>
+                                                                <button 
+                                                                    onClick={cancelReply}
+                                                                    className="text-gray-600 hover:text-gray-800"
+                                                                >
+                                                                    <FiX />
+                                                                </button>
+                                                            </div>
+                                                            <RichTextEditor 
+                                                                value={replyContent} 
+                                                                onChange={setReplyContent} 
+                                                            />
+                                                            <div className="flex justify-end mt-2">
+                                                                <button
+                                                                    onClick={() => saveReply(review.id)}
+                                                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                                                >
+                                                                    답변 저장
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    )}
+                                                    ) : review.sellerResponse ? (
+                                                        <div>
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="font-medium">판매자 답변:</span>
+                                                                <button
+                                                                    onClick={() => startReplying(review.id)}
+                                                                    className="text-sm text-blue-600 hover:text-blue-800"
+                                                                >
+                                                                    수정
+                                                                </button>
+                                                            </div>
+                                                            <div 
+                                                                className="p-3 bg-blue-50 rounded mt-1"
+                                                                dangerouslySetInnerHTML={{ __html: review.sellerResponse }}
+                                                            />
+                                                        </div>
+                                                    ) : null}
+                                                    
+                                                    {/* 액션 버튼 */}
                                                     <div className="flex space-x-2">
-                                                        <button className="px-3 py-1 bg-blue-500 text-white rounded text-sm">
-                                                            답변하기
-                                                        </button>
-                                                        <button className="px-3 py-1 bg-green-500 text-white rounded text-sm">
-                                                            승인
-                                                        </button>
-                                                        <button className="px-3 py-1 bg-red-500 text-white rounded text-sm">
-                                                            숨기기
-                                                        </button>
+                                                        {!replyingTo && !review.sellerResponse && (
+                                                            <button 
+                                                                onClick={() => startReplying(review.id)}
+                                                                className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+                                                            >
+                                                                답변하기
+                                                            </button>
+                                                        )}
+                                                        
+                                                        {review.status !== '승인' && (
+                                                            <button 
+                                                                onClick={() => changeReviewStatus(review.id, '승인')}
+                                                                className="px-3 py-1 bg-green-500 text-white rounded text-sm flex items-center"
+                                                            >
+                                                                <FiCheck className="mr-1" /> 승인
+                                                            </button>
+                                                        )}
+                                                        
+                                                        {review.status !== '숨김' && (
+                                                            <button 
+                                                                onClick={() => changeReviewStatus(review.id, '숨김')}
+                                                                className="px-3 py-1 bg-red-500 text-white rounded text-sm"
+                                                            >
+                                                                숨기기
+                                                            </button>
+                                                        )}
+                                                        
+                                                        {review.status === '숨김' && (
+                                                            <button 
+                                                                onClick={() => changeReviewStatus(review.id, '대기')}
+                                                                className="px-3 py-1 bg-yellow-500 text-white rounded text-sm"
+                                                            >
+                                                                복원하기
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </td>
