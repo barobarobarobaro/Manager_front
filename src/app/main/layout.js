@@ -38,9 +38,9 @@ export default function MainLayout({ children }) {
         setSidebarOpen(false);
       }
     };
-    
+
     window.addEventListener('keydown', handleEsc);
-    
+
     return () => {
       window.removeEventListener('keydown', handleEsc);
     };
@@ -63,15 +63,15 @@ export default function MainLayout({ children }) {
       {sidebarOpen && (
         <div className="md:hidden fixed inset-0 z-40 flex">
           {/* 배경 오버레이 - 클릭하면 사이드바 닫힘 */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
-            onClick={() => setSidebarOpen(false)}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+            onMouseDown={() => setSidebarOpen(false)}
           ></div>
-          
+
           {/* 사이드바 컨텐츠 */}
           <div className="relative flex-1 flex flex-col w-full max-w-xs bg-gray-800 text-white shadow-xl">
             <div className="absolute top-0 right-0 p-4">
-              <button 
+              <button
                 onClick={() => setSidebarOpen(false)}
                 className="text-white focus:outline-none"
               >
