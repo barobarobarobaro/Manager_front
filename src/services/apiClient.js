@@ -19,7 +19,7 @@ const mockAPI = (data, error = null) => {
 
 // 환경에 따라 실제 API URL 또는 목업 데이터 사용
 const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.yourserver.com/api' 
+  ? '' //여기에 실제 서버 api 주소를 넣어주세요
   : '';
 
 // 기본 API 클라이언트 함수

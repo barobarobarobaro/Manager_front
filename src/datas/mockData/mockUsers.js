@@ -1,5 +1,3 @@
-
-// mockData/userMockData.js
 export const mockUsers = [
     {
       id: 1,

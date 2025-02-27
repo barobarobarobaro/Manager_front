@@ -3,7 +3,7 @@ import { mockUsers } from '@/datas/mockData/mockUsers';
 
 // 환경에 따라 실제 API URL 또는 목업 데이터 사용
 const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.yourserver.com/api' 
+  ? '' //여기에 실제 서버 api 주소를 넣어주세요
   : '';
 
 // 현재 로그인한 사용자 ID (실제로는 인증 시스템에서 가져옴)
