@@ -1,8 +1,7 @@
-// ProductCard.jsx
 'use client';
 import React from 'react';
 
-export default function ProductCard({ product, onAddToCart, onReserve }) {
+export default function ProductCard({ product, onAddToCart, onViewDetail }) {
   // 상품 데이터가 없는 경우 예외 처리
   if (!product) {
     return null;
@@ -30,7 +29,6 @@ export default function ProductCard({ product, onAddToCart, onReserve }) {
         <div className="mt-2">
           <p className="font-bold">
             {product.price ? product.price.toLocaleString() : '0'}원
-            <span className="text-xs font-normal text-gray-500 ml-1">/{product.unit || '개'}</span>
           </p>
         </div>
 
@@ -45,13 +43,13 @@ export default function ProductCard({ product, onAddToCart, onReserve }) {
             onClick={() => onAddToCart && onAddToCart(product)}
             className="flex-1 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
           >
-            구매하기
+            장바구니
           </button>
           <button
-            onClick={() => onReserve && onReserve(product)}
+            onClick={() => onViewDetail && onViewDetail(product)}
             className="flex-1 py-1.5 border border-green-600 text-green-600 rounded-md text-sm hover:bg-green-50"
           >
-            예약구매
+            상세보기
           </button>
         </div>
       </div>

@@ -55,7 +55,7 @@ export default function Page() {
                 setFarms(allFarms);
 
                 // 좋아요한 가게 목록 가져오기
-                const userLikedFarms = userService.getLikedFarms();
+                const userLikedFarms = userService.getLikedStores();
                 setLikedFarms(userLikedFarms.map(farm => farm.id));
 
                 // 주문 내역 가져오기
@@ -68,7 +68,7 @@ export default function Page() {
                     setSelectedFarmId(firstLikedFarmId);
 
                     // 해당 가게의 상품 목록 가져오기
-                    const farmProducts = userService.getFarmProducts(firstLikedFarmId.toString());
+                    const farmProducts = userService.getStoreProducts(firstLikedFarmId.toString());
                     setProducts(farmProducts);
                 }
 
@@ -85,7 +85,7 @@ export default function Page() {
     // 가게 선택 함수
     const selectFarm = (farmId) => {
         setSelectedFarmId(farmId);
-        const farmProducts = userService.getFarmProducts(farmId.toString());
+        const farmProducts = userService.getStoreProducts(farmId.toString());
         setProducts(farmProducts);
     };
 
@@ -98,6 +98,9 @@ export default function Page() {
     const reserveProduct = (product) => {
         alert(`${product.name}을(를) 예약 구매합니다!`);
     };
+
+    // 좋아요한 가게만 필터링
+    const likedFarmsList = farms.filter(farm => userProfile?.likedFarms?.includes(farm.id));
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -117,23 +120,18 @@ export default function Page() {
                         {/* 가게 목록 섹션 */}
                         <section className="mb-8">
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-lg font-semibold">가게 목록</h2>
-                                <div className="flex space-x-4">
-                                    <button className="text-sm px-3 py-1 rounded-full bg-red-100 text-red-800">
-                                        좋아요 ({userProfile?.likedFarms?.length || 0})
-                                    </button>
-                                    <button className="text-sm px-3 py-1 rounded-full bg-gray-100 text-gray-800">
-                                        전체 ({farms.length})
-                                    </button>
+                                <h2 className="text-lg font-semibold">좋아요한 가게</h2>
+                                <div className="text-sm text-gray-500">
+                                    총 {likedFarmsList.length}개
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {farms.map((farm) => (
+                                {likedFarmsList.map((farm) => (
                                     <FarmCard
                                         key={farm.id}
                                         farm={farm}
-                                        isLiked={userProfile?.likedFarms?.includes(farm.id)}
+                                        isLiked={true}
                                         onSelect={selectFarm}
                                         isSelected={selectedFarmId === farm.id}
                                     />
@@ -189,7 +187,7 @@ export default function Page() {
                         <section className="bg-white rounded-lg p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-semibold">최근 주문 내역</h2>
-                                <Link href="/user/order" className="text-sm text-green-600 hover:text-green-700">
+                                <Link href="/order" className="text-sm text-green-600 hover:text-green-700">
                                     전체 주문 보기
                                 </Link>
                             </div>

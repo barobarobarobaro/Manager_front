@@ -7,59 +7,86 @@ import Header from "@/components/user/common/Header";
 import Footer from "@/components/user/common/Footer";
 import ProductCard from "@/components/user/common/ProductCard";
 import userService from "@/services/userService";
+import storeService from "@/services/storeService";
 
-// 가게 소개 컴포넌트
-const FarmInfo = ({ farm }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const NoticeSection = ({ notices }) => {
+  const [expanded, setExpanded] = useState(false);
 
-  // 사용자 정보 로드
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setLoading(true);
-        const response = await userService.getCurrentUser();
-        setUser(response.data);
-      } catch (error) {
-        console.error("사용자 정보 로드 실패:", error);
-        setError("사용자 정보를 불러오는데 실패했습니다");
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!notices || notices.length === 0) {
+    return null;
+  }
 
-    fetchUserData();
-  }, []);
-  // 프로필 이미지 렌더링 함수
-  const renderProfileImage = () => {
-    if (loading) {
-      // 로딩 중 표시
-      return (
-        <div className="w-32 h-32 rounded-full bg-gray-600 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
-        </div>
-      );
-    }
+  // 기본적으로 최근 공지 하나만 표시하고, 확장 시 전체 표시
+  const displayNotices = expanded ? notices : [notices[0]];
 
-    if (error || !user) {
-      // 오류 또는 사용자 정보가 없을 때 기본 이미지
-      return (
-        <div className="w-32 h-32 rounded-full bg-gray-600 flex items-center justify-center text-3xl">
-          👤
-        </div>
-      );
-    }
+  // 만료일 표시 함수
+  const renderExpireInfo = (notice) => {
+    if (!notice.expiredDate) return null;
 
-    // 사용자 프로필 이미지 표시
+    const expireDate = new Date(notice.expiredDate);
+    const today = new Date();
+    const daysLeft = Math.ceil((expireDate - today) / (1000 * 60 * 60 * 24));
     return (
-      <img
-        src={user.profileImage || "/images/profile.jpeg"}
-        alt="프로필 사진"
-        className="w-32 h-32 rounded-full mb-2 object-cover"
-      />
+      <span className="text-xs text-red-500 ml-2">
+        {daysLeft <= 0 ? "오늘 마감" : `${daysLeft}일 남음`}
+      </span>
     );
   };
+
+  return (
+    <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200 mb-6">
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-lg font-medium text-yellow-800">공지사항</h3>
+        {notices.length > 1 && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-sm text-yellow-700 hover:text-yellow-900"
+          >
+            {expanded ? '접기' : `${notices.length}개 모두 보기`}
+          </button>
+        )}
+      </div>
+      <div className="space-y-3">
+        {displayNotices.map((notice, index) => (
+          <div key={index} className="bg-white rounded p-3 border-l-4 border-yellow-400">
+            <div className="flex justify-between items-start">
+              <h4 className="font-medium">
+                {notice.title}
+                {renderExpireInfo(notice)}
+              </h4>
+              <span className="text-xs text-gray-500">{notice.date}</span>
+            </div>
+            <p className="text-sm text-gray-700 mt-1">{notice.content}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// 가게 소개 컴포넌트
+const StoreInfo = ({ store }) => {
+  // 프로필 이미지 렌더링 함수
+  const renderProfileImage = () => {
+    // 가게 프로필 이미지 표시
+    if (store.profileImage) {
+      return (
+        <img
+          src={store.profileImage}
+          alt="가게 프로필 사진"
+          className="w-32 h-32 rounded-full mb-2 object-cover"
+        />
+      );
+    }
+
+    // 기본 이미지
+    return (
+      <div className="w-32 h-32 rounded-full bg-gray-600 flex items-center justify-center text-3xl">
+        🏡
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm">
       {/* 가게 이미지 (배경) */}
@@ -67,8 +94,8 @@ const FarmInfo = ({ farm }) => {
         <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
           <div className="p-6 flex flex-col items-center">
             {renderProfileImage()}
-            <h1 className="text-white text-3xl font-bold">{farm.name}</h1>
-            <p className="text-white mt-2">{farm.slogan || "신선한 농산물을 직접 재배합니다"}</p>
+            <h1 className="text-white text-3xl font-bold">{store.name}</h1>
+            <p className="text-white mt-2">{store.slogan || "신선한 농산물을 직접 재배합니다"}</p>
           </div>
         </div>
       </div>
@@ -78,18 +105,22 @@ const FarmInfo = ({ farm }) => {
         <div className="flex flex-col sm:flex-row justify-between">
           <div>
             <div className="flex items-center">
-              <h2 className="text-xl font-bold">{farm.name}</h2>
-              <span className="ml-2 text-sm bg-green-100 text-green-800 px-2 py-0.5 rounded-full">인증 농장</span>
+              <h2 className="text-xl font-bold">{store.name}</h2>
+              {store.isOrganic && (
+                <span className="ml-2 text-sm bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                  {store.farmType || "인증 가게"}
+                </span>
+              )}
             </div>
-            <p className="text-gray-600 mt-1">{farm.location}</p>
+            <p className="text-gray-600 mt-1">{store.location}</p>
             <div className="flex items-center mt-2">
               <div className="flex items-center">
                 <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                 </svg>
-                <span className="ml-1 font-medium">{farm.rating}</span>
+                <span className="ml-1 font-medium">{store.rating}</span>
                 <span className="mx-1 text-gray-400">|</span>
-                <span className="text-sm text-gray-500">리뷰 {farm.reviewCount || 128}개</span>
+                <span className="text-sm text-gray-500">리뷰 {store.reviewCount || 0}개</span>
               </div>
             </div>
           </div>
@@ -111,36 +142,36 @@ const FarmInfo = ({ farm }) => {
 
         {/* 가게 소개 */}
         <div className="mt-6 border-t pt-6">
-          <h3 className="text-lg font-medium mb-3">농장 소개</h3>
+          <h3 className="text-lg font-medium mb-3">가게 소개</h3>
           <p className="text-gray-700 leading-relaxed">
-            {farm.description || `안녕하세요, ${farm.name}입니다. 저희 농장은 ${farm.location}에 위치해 있으며, 무농약 친환경 농법으로 정성껏 농산물을 재배하고 있습니다. 신선하고 안전한 먹거리를 제공하기 위해 항상 노력하고 있으니 많은 관심 부탁드립니다.`}
+            {store.description || `안녕하세요, ${store.name}입니다. 저희 가게은 ${store.location}에 위치해 있으며, 무농약 친환경 농법으로 정성껏 농산물을 재배하고 있습니다. 신선하고 안전한 먹거리를 제공하기 위해 항상 노력하고 있으니 많은 관심 부탁드립니다.`}
           </p>
         </div>
 
         {/* 가게 정보 목록 */}
         <div className="mt-6 border-t pt-6">
-          <h3 className="text-lg font-medium mb-3">농장 정보</h3>
+          <h3 className="text-lg font-medium mb-3">가게 정보</h3>
           <ul className="space-y-3">
             <li className="flex items-start">
               <span className="flex-shrink-0 w-24 text-gray-500">주소</span>
-              <span>{farm.fullAddress || `${farm.location} 상세주소`}</span>
+              <span>{store.address || `${store.location} 상세주소`}</span>
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 w-24 text-gray-500">연락처</span>
-              <span>{farm.phone || "010-1234-5678"}</span>
+              <span>{store.phoneNumber || "010-1234-5678"}</span>
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 w-24 text-gray-500">영업시간</span>
-              <span>{farm.businessHours || "평일 09:00 - 18:00"}</span>
+              <span>{store.businessHours || "평일 09:00 - 18:00"}</span>
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 w-24 text-gray-500">휴무일</span>
-              <span>{farm.holiday || "토요일, 일요일, 공휴일"}</span>
+              <span>{store.closedDays ? (Array.isArray(store.closedDays) ? store.closedDays.join(', ') : store.closedDays) : "토요일, 일요일, 공휴일"}</span>
             </li>
             <li className="flex items-start">
-              <span className="flex-shrink-0 w-24 text-gray-500">주요 작물</span>
+              <span className="flex-shrink-0 w-24 text-gray-500">주요 상품</span>
               <div className="flex flex-wrap gap-1">
-                {(farm.mainCrops || ["감자", "당근", "양파", "토마토"]).map((crop, index) => (
+                {(store.productCategories || []).map((crop, index) => (
                   <span key={index} className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
                     {crop}
                   </span>
@@ -175,17 +206,18 @@ const CategoryTabs = ({ categories, activeCategory, onSelectCategory }) => {
 };
 
 // 가게 상세 페이지
-export default function FarmDetailPage() {
+export default function StoreDetailPage() {
   const params = useParams();
-  const farmId = params?.id;
+  const storeId = params?.id;
 
   const [userProfile, setUserProfile] = useState(null);
-  const [farm, setFarm] = useState(null);
+  const [store, setStore] = useState(null);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
+  const [notices, setNotices] = useState([]);
 
   // 데이터 가져오기
   useEffect(() => {
@@ -197,42 +229,53 @@ export default function FarmDetailPage() {
         const profile = userService.getUserProfile("2");
         setUserProfile(profile);
 
-        // 가게 정보 가져오기 (모의 데이터)
-        const mockFarm = {
-          id: parseInt(farmId),
-          name: "한들농원",
-          location: "강원도 평창",
-          rating: 4.8,
-          productCount: 15,
-          slogan: "깨끗한 자연에서 키운 신선한 농산물",
-          description: "한들농원은 강원도 평창의 맑은 공기와 깨끗한 물로 농산물을 재배합니다. 무농약, 친환경 재배를 원칙으로 하며, 소비자의 건강을 최우선으로 생각합니다. 정성껏 키운 농산물을 합리적인 가격에 제공해 드립니다.",
-          fullAddress: "강원도 평창군 대관령면 올림픽로 123",
-          phone: "010-1234-5678",
-          businessHours: "평일 09:00 - 18:00",
-          holiday: "일요일, 공휴일",
-          mainCrops: ["감자", "당근", "양파", "토마토", "고구마"],
-          reviewCount: 128
+        // 가게 기본 정보 가져오기
+        const storeBasic = storeService.getStoreById(parseInt(storeId));
+
+        // 가게 상세 정보 가져오기
+        const storeDetails = storeService.getStoreDetails(storeId);
+
+        // 기본 정보와 상세 정보 합치기
+        const storeData = {
+          ...storeBasic,
+          ...storeDetails,
         };
 
-        // 가게 ID에 따라 이름 변경 (실제로는 API에서 가져와야 함)
-        if (farmId === "2") {
-          mockFarm.name = "푸른들팜";
-          mockFarm.location = "전라남도 나주";
-        } else if (farmId === "3") {
-          mockFarm.name = "산골마을";
-          mockFarm.location = "경상북도 안동";
-        }
-
-        setFarm(mockFarm);
+        setStore(storeData);
 
         // 가게의 상품 목록 가져오기
-        const farmProducts = userService.getFarmProducts(farmId.toString());
-        setProducts(farmProducts);
-        setFilteredProducts(farmProducts);
+        const storeProducts = storeService.getStoreProducts(storeId);
+        setProducts(storeProducts);
+        setFilteredProducts(storeProducts);
 
-        // 상품 카테고리 추출
-        const productCategories = ["전체", ...new Set(farmProducts.map(p => p.category))];
+        // 가게 설정 카테고리 불러오기 (없으면 제품에서 추출)
+        let productCategories = ["전체"];
+
+        if (storeData.productCategories && storeData.productCategories.length > 0) {
+          // 가게에서 설정한 카테고리 사용
+          productCategories = ["전체", ...storeData.productCategories];
+        } else {
+          // 제품에서 카테고리 추출
+          productCategories = ["전체", ...new Set(storeProducts.map(p => p.category))];
+        }
+
         setCategories(productCategories);
+
+        // 공지사항 불러오기 (임시 데이터)
+        const mockNotices = storeService.getStoreNotices(storeId) || [
+          {
+            title: "3월 신규 상품 입고 안내",
+            date: "2025-03-01",
+            content: "봄을 맞아 신선한 봄나물과 딸기가 입고되었습니다. 많은 관심 부탁드립니다."
+          },
+          {
+            title: "배송 지연 안내",
+            date: "2025-02-25",
+            content: "최근 기상 악화로 인해 일부 지역 배송이 1-2일 지연될 수 있습니다. 양해 부탁드립니다."
+          }
+        ];
+
+        setNotices(mockNotices);
 
         setLoading(false);
       } catch (error) {
@@ -241,10 +284,10 @@ export default function FarmDetailPage() {
       }
     };
 
-    if (farmId) {
+    if (storeId) {
       fetchData();
     }
-  }, [farmId]);
+  }, [storeId]);
 
   // 카테고리 변경 시 상품 필터링
   const handleCategoryChange = (category) => {
@@ -277,7 +320,7 @@ export default function FarmDetailPage() {
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
           </div>
-        ) : farm ? (
+        ) : store ? (
           <>
             {/* 뒤로 가기 버튼 */}
             <div className="mb-4">
@@ -290,10 +333,15 @@ export default function FarmDetailPage() {
             </div>
 
             {/* 가게 정보 */}
-            <FarmInfo farm={farm} />
+            <StoreInfo store={store} />
+
+            {/* 공지사항 섹션 */}
+            <div className="mt-8">
+              <NoticeSection notices={notices} />
+            </div>
 
             {/* 상품 목록 섹션 */}
-            <section className="mt-8">
+            <section className="mt-4">
               <h2 className="text-xl font-semibold mb-4">판매 상품</h2>
 
               {/* 카테고리 필터 */}

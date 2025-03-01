@@ -1,5 +1,6 @@
 import mockData from '@/datas/mockData/mockUser.json';
 
+let currentUserID="1";
 // 1번 사용자 프로필 가져오기
 const getUserProfile = (userID="1") => {
   try {
@@ -8,7 +9,7 @@ const getUserProfile = (userID="1") => {
     if (!user) {
       throw new Error('사용자를 찾을 수 없습니다.');
     }
-    
+    setCurrentUserID(userID);
     // 비밀번호는 제외하고 반환
     const { password, ...userInfo } = user;
     return userInfo;
@@ -19,7 +20,7 @@ const getUserProfile = (userID="1") => {
 };
 
 // 좋아요한 가게 목록 가져오기
-const getLikedFarms = () => {
+const getLikedStores = () => {
   try {
     // 1번 사용자의 좋아요한 가게 ID 목록
     const user = mockData.users.find(user => user.id === "1");
@@ -30,7 +31,7 @@ const getLikedFarms = () => {
     const likedFarmIds = user.likedFarms;
     
     // 가게 정보 가져오기
-    return mockData.farms.filter(farm => likedFarmIds.includes(farm.id));
+    return mockData.stores.filter(store => likedFarmIds.includes(store.id));
   } catch (error) {
     console.error('좋아요한 가게 조회 오류:', error);
     return [];
@@ -40,7 +41,7 @@ const getLikedFarms = () => {
 // 가게 목록 전체 가져오기
 const getAllFarms = () => {
   try {
-    return mockData.farms;
+    return mockData.stores;
   } catch (error) {
     console.error('가게 목록 조회 오류:', error);
     return [];
@@ -48,9 +49,9 @@ const getAllFarms = () => {
 };
 
 // 가게별 상품 목록 가져오기
-const getFarmProducts = (farmId) => {
+const getStoreProducts = (storeId) => {
   try {
-    return mockData.products[farmId] || [];
+    return mockData.products[storeId] || [];
   } catch (error) {
     console.error('가게 상품 조회 오류:', error);
     return [];
@@ -67,13 +68,21 @@ const getRecentOrders = () => {
     return [];
   }
 };
-
+const getCurrentUserID=()=>{
+  return currentUserID;
+}
+const setCurrentUserID=(userID)=>{
+  currentUserID=userID;
+  return currentUserID;
+}
 const userService = {
   getUserProfile,
-  getLikedFarms,
+  getLikedStores,
   getAllFarms,
-  getFarmProducts,
-  getRecentOrders
+  getStoreProducts,
+  getRecentOrders,
+  getCurrentUserID,
+  setCurrentUserID
 };
 
 export default userService;
