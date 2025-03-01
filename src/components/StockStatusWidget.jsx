@@ -22,7 +22,7 @@ export default function StockStatusWidget({ title, items }) {
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">{title}</h2>
                 <button className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm">
-                    <Link href="/main/product/list">
+                    <Link href="/admin/product/list">
                     상품 조회 및 수정
                     </Link>
                 </button>

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import userService from "@/services/userService";
+import userService from "@/services/adminService";
 
 function CollapsibleNavSection({ title, children }) {
     const [open, setOpen] = useState(false);
@@ -129,23 +129,23 @@ export default function Sidebar() {
                 )}
                 
                 <span className="text-sm text-gray-300 mt-3">
-                    <Link href="/main/profile" className="hover:text-white hover:underline">프로필 수정</Link>
+                    <Link href="/admin/profile" className="hover:text-white hover:underline">프로필 수정</Link>
                 </span>
             </div>
 
             <nav className="flex-grow mt-4">
                 <ul>
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main">메인으로</Link>
+                        <Link href="/admin">메인으로</Link>
                     </li>
                 </ul>
                 <hr className="my-2 border-gray-600" />
                 <CollapsibleNavSection title="상품 관리">
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/product/list">상품 조회 / 수정</Link>
+                        <Link href="/admin/product/list">상품 조회 / 수정</Link>
                     </li>
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/product/add">상품 등록</Link>
+                        <Link href="/admin/product/add">상품 등록</Link>
                     </li>
                     {/* <li className="px-6 py-2 hover:bg-gray-700">상품 일괄등록</li> */}
                 </CollapsibleNavSection>
@@ -153,36 +153,36 @@ export default function Sidebar() {
 
                 <CollapsibleNavSection title="판매 관리">
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/sellmanagement/searchorder">주문 통합 검색</Link>
+                        <Link href="/admin/sellmanagement/searchorder">주문 통합 검색</Link>
                     </li>
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/sellmanagement/checkorder">주문 확인</Link>
+                        <Link href="/admin/sellmanagement/checkorder">주문 확인</Link>
                     </li>
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/sellmanagement/manageshipping">배송 현황 관리</Link>
+                        <Link href="/admin/sellmanagement/manageshipping">배송 현황 관리</Link>
                     </li>
                 </CollapsibleNavSection>
                 <hr className="my-2 border-gray-600" />
 
                 <CollapsibleNavSection title="정산 관리">
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/settlement/content">정산 내역</Link>
+                        <Link href="/admin/settlement/content">정산 내역</Link>
                     </li>
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/settlement/taxbill">세금계산서 발급 및 조회</Link>
+                        <Link href="/admin/settlement/taxbill">세금계산서 발급 및 조회</Link>
                     </li>
                 </CollapsibleNavSection>
                 <hr className="my-2 border-gray-600" />
 
                 <CollapsibleNavSection title="고객 응대">
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/customerservice/qna">문의 관리</Link>
+                        <Link href="/admin/customerservice/qna">문의 관리</Link>
                     </li>
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/customerservice/review">리뷰 관리</Link>
+                        <Link href="/admin/customerservice/review">리뷰 관리</Link>
                     </li>
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/main/customerservice/notice">공지사항 관리</Link>
+                        <Link href="/admin/customerservice/notice">공지사항 관리</Link>
                     </li>
                 </CollapsibleNavSection>
             </nav>

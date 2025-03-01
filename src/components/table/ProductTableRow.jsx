@@ -32,7 +32,7 @@ export default function ProductTableRow({
           />
         ) : (
           <Link
-            href={`/main/product/detail/${product.id}`}
+            href={`/admin/product/detail/${product.id}`}
             className="text-blue-600 hover:text-blue-800 hover:underline"
           >
             {product.name}
@@ -115,7 +115,7 @@ export default function ProductTableRow({
               <FiEdit className="inline mr-1" /> 수정
             </button>
             <Link
-              href={`/main/product/detail/${product.id}`}
+              href={`/admin/product/detail/${product.id}`}
               className="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-sm inline-block"
             >
               상세

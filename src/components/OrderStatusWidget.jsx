@@ -56,7 +56,7 @@ export default function OrderStatusWidget({
           >
             <FiSearch className="mr-1" />
             <span className="text-sm">
-              <Link href="/main/sellmanagement/searchorder">주문 통합 검색</Link>
+              <Link href="/admin/sellmanagement/searchorder">주문 통합 검색</Link>
             </span>
           </button>
 
@@ -66,7 +66,7 @@ export default function OrderStatusWidget({
           >
             <FiClipboard className="mr-1" />
             <span className="text-sm">
-              <Link href="/main/sellmanagement/checkorder">주문 확인</Link>
+              <Link href="/admin/sellmanagement/checkorder">주문 확인</Link>
 
             </span>
           </button>
@@ -77,7 +77,7 @@ export default function OrderStatusWidget({
           >
             <FiTruck className="mr-1" />
             <span className="text-sm">
-              <Link href="/main/sellmanagement/manageshipping">배송 현황 관리</Link>
+              <Link href="/admin/sellmanagement/manageshipping">배송 현황 관리</Link>
 
             </span>
           </button>

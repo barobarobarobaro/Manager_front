@@ -16,7 +16,7 @@ export default function LoginPage() {
     // 실제 로그인 로직 (예: API 호출) 대신 간단히 비교
     if (email === "admin@test.com" && password === "1234") {
       // 로그인 성공 시 메인 페이지로 이동
-      router.push("./main");
+      router.push("./admin");
     } else {
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
     }
@@ -26,7 +26,12 @@ export default function LoginPage() {
   const handleSocialLogin = (provider) => {
     // 실제 구현에서는 각 소셜 로그인 API를 호출
     console.log(`${provider} 로그인 시도`);
-    router.push("./main");
+    if (provider === "kakao") {
+      router.push("./user");
+    }
+    else if (provider === "naver") {
+      router.push("./admin");
+    }
     // 예시: router.push(`/api/auth/${provider}`);
   };
 
@@ -38,6 +43,8 @@ export default function LoginPage() {
 
         {/* 소셜 로그인 버튼 */}
         <div className="space-y-4 mb-6">
+          <p className="text-center text-gray-600">테스트 단계 입니다. <br/>
+          카카오 로그인 시 유저,<br/> 네이버 로그인 시 관리자로 로그인 됩니다. </p>
           <button 
             onClick={() => handleSocialLogin('kakao')}
             className="w-full flex items-center justify-center p-2 rounded-md hover:bg-yellow-50 transition-colors"

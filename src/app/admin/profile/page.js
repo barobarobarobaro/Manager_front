@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FiUser, FiLock, FiMail, FiPhone, FiMapPin, FiSave, FiX, FiCamera, FiBriefcase, FiFileText, FiCreditCard, FiGlobe } from "react-icons/fi";
-import userService from "@/services/userService";
+import userService from "@/services/adminService";
 
 export default function ProfileEditPage() {
     // 사용자 정보 상태

@@ -276,7 +276,7 @@ export default function OrderSearchPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{order.amount.toLocaleString()}원</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                         <Link 
-                          href={`/main/sellmanagement/searchorder/${order.id}`}
+                          href={`/admin/sellmanagement/searchorder/${order.id}`}
                           className="text-blue-600 hover:text-blue-900"
                         >
                           상세보기
@@ -322,7 +322,7 @@ export default function OrderSearchPage() {
                         </p>
                         <div className="pt-2">
                           <Link 
-                            href={`/main/sellmanagement/searchorder/${order.id}`}
+                            href={`/admin/sellmanagement/searchorder/${order.id}`}
                             className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm inline-block"
                           >
                             상세보기

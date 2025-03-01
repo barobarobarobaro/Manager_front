@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { FiEdit, FiSave, FiX, FiCheck } from "react-icons/fi";
 import TableHeaderWithHelp from "@/components/table/ProductTableHeader";
 import productService from "@/services/productService";
 import Pagination from "@/components/common/Pagination";
@@ -26,6 +25,25 @@ export default function ProductPage() {
     const [editData, setEditData] = useState({});
 
     const [toast, setToast] = useState({ show: false, message: "", type: "" });
+    // 모바일 뷰 확인을 위한 상태
+    const [isMobileView, setIsMobileView] = useState(false);
+
+    // 화면 크기 감지 및 모바일 뷰 설정
+    useEffect(() => {
+        const checkIsMobile = () => {
+            setIsMobileView(window.innerWidth < 768);
+        };
+        
+        // 초기 로드 시 확인
+        checkIsMobile();
+        
+        // 리사이즈 이벤트 리스너 등록
+        window.addEventListener('resize', checkIsMobile);
+        
+        // 컴포넌트 언마운트 시 이벤트 리스너 제거
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
+
     // 상품 데이터 불러오기
     useEffect(() => {
         const fetchProducts = async () => {
@@ -200,6 +218,112 @@ export default function ProductPage() {
         }
     };
 
+    // 모바일 뷰에서 카드 형태로 표시할 상품 아이템 컴포넌트
+    const ProductCard = ({ product, isSelected, isEditing, editData, onToggleSelect, onStartEditing, onCancelEditing, onSaveEditing, onEditChange }) => {
+        return (
+            <div className={`p-4 border rounded-lg mb-3 ${isSelected ? 'bg-blue-50 border-blue-300' : 'bg-white'}`}>
+                <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center">
+                        <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => onToggleSelect(product.id)}
+                            className="mr-2 h-4 w-4"
+                        />
+                        <h3 className="font-bold">{product.name}</h3>
+                    </div>
+                    <span className={`text-sm px-2 py-1 rounded ${product.stock === 0 ? 'bg-red-100 text-red-800' : product.stock <= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                        재고: {product.stock}
+                    </span>
+                </div>
+                
+                {isEditing ? (
+                    <div className="space-y-2 mb-3">
+                        <div>
+                            <label className="block text-sm font-medium">상품명</label>
+                            <input 
+                                type="text" 
+                                value={editData.name || ''}
+                                onChange={(e) => onEditChange(e, 'name')}
+                                className="w-full p-2 border rounded text-sm mt-1"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <label className="block text-sm font-medium">카테고리</label>
+                                <input 
+                                    type="text" 
+                                    value={editData.category || ''}
+                                    onChange={(e) => onEditChange(e, 'category')}
+                                    className="w-full p-2 border rounded text-sm mt-1"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">가격</label>
+                                <input 
+                                    type="number" 
+                                    value={editData.price || 0}
+                                    onChange={(e) => onEditChange(e, 'price')}
+                                    className="w-full p-2 border rounded text-sm mt-1"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">재고</label>
+                            <input 
+                                type="number" 
+                                value={editData.stock || 0}
+                                onChange={(e) => onEditChange(e, 'stock')}
+                                className="w-full p-2 border rounded text-sm mt-1"
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-2 mt-3">
+                            <button 
+                                onClick={onCancelEditing}
+                                className="px-3 py-1 bg-gray-200 rounded text-sm"
+                            >
+                                취소
+                            </button>
+                            <button 
+                                onClick={() => onSaveEditing(product.id)}
+                                className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+                            >
+                                저장
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div>
+                        <div className="grid grid-cols-2 gap-1 mb-3 text-sm">
+                            <div>
+                                <span className="text-gray-500">카테고리:</span> {product.category}
+                            </div>
+                            <div>
+                                <span className="text-gray-500">가격:</span> {product.price.toLocaleString()}원
+                            </div>
+                            <div>
+                                <span className="text-gray-500">등록일:</span> {new Date(product.created).toLocaleDateString()}
+                            </div>
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                            <button 
+                                onClick={() => onStartEditing(product)}
+                                className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm"
+                            >
+                                편집
+                            </button>
+                            <Link href={`/products/${product.id}`}>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm inline-block">
+                                    상세
+                                </span>
+                            </Link>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     // 로딩 중이면 로딩 표시
     if (loading) {
         return (
@@ -233,9 +357,9 @@ export default function ProductPage() {
             {/* 토스트 메시지 컴포넌트 */}
             <Toast {...toast} onClose={() => setToast({ show: false, message: "", type: "" })} />
             
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">상품 조회 / 수정</h1>
-                <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                <h1 className="text-xl sm:text-2xl font-bold">상품 조회 / 수정</h1>
+                <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-sm sm:text-base w-full sm:w-auto">
                     <Link href="./add">
                         + 상품 추가
                     </Link>
@@ -243,7 +367,7 @@ export default function ProductPage() {
             </div>
 
             {/* 검색 및 필터 영역 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">검색</label>
                     <input
@@ -291,30 +415,16 @@ export default function ProductPage() {
                 </div>
             </div>
 
-            {/* 데이터 테이블 */}
-            <div className="overflow-x-auto bg-white rounded-lg shadow">
-                <table className="w-full border-collapse">
-                    <thead>
-                        <tr className="bg-gray-100 border-b">
-                            <th className="p-3 text-left">
-                                <input
-                                    type="checkbox"
-                                    className="mr-2"
-                                    checked={currentProducts.length > 0 && selectedIds.length === currentProducts.length}
-                                    onChange={toggleSelectAll}
-                                />
-                            </th>
-                            <TableHeaderWithHelp title="상품명" helpText={helpTexts.name} />
-                            <TableHeaderWithHelp title="카테고리" helpText={helpTexts.category} />
-                            <TableHeaderWithHelp title="가격" helpText={helpTexts.price} />
-                            <TableHeaderWithHelp title="재고" helpText={helpTexts.stock} />
-                            <TableHeaderWithHelp title="등록일" helpText={helpTexts.created} />
-                            <TableHeaderWithHelp title="관리" helpText={helpTexts.actions} />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentProducts.map(product => (
-                            <ProductTableRow
+            {/* 모바일 뷰일 때 카드 형태로 표시 */}
+            {isMobileView ? (
+                <div className="mb-6">
+                    {currentProducts.length === 0 ? (
+                        <div className="p-6 text-center text-gray-500 bg-white rounded-lg shadow">
+                            검색 결과가 없습니다.
+                        </div>
+                    ) : (
+                        currentProducts.map(product => (
+                            <ProductCard
                                 key={product.id}
                                 product={product}
                                 isSelected={selectedIds.includes(product.id)}
@@ -326,16 +436,56 @@ export default function ProductPage() {
                                 onSaveEditing={saveEditing}
                                 onEditChange={handleEditChange}
                             />
-                        ))}
-                    </tbody>
-                </table>
+                        ))
+                    )}
+                </div>
+            ) : (
+                /* 데스크톱 뷰일 때 테이블 형태로 표시 */
+                <div className="overflow-x-auto bg-white rounded-lg shadow mb-6">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="bg-gray-100 border-b">
+                                <th className="p-3 text-left">
+                                    <input
+                                        type="checkbox"
+                                        className="mr-2"
+                                        checked={currentProducts.length > 0 && selectedIds.length === currentProducts.length}
+                                        onChange={toggleSelectAll}
+                                    />
+                                </th>
+                                <TableHeaderWithHelp title="상품명" helpText={helpTexts.name} />
+                                <TableHeaderWithHelp title="카테고리" helpText={helpTexts.category} />
+                                <TableHeaderWithHelp title="가격" helpText={helpTexts.price} />
+                                <TableHeaderWithHelp title="재고" helpText={helpTexts.stock} />
+                                <TableHeaderWithHelp title="등록일" helpText={helpTexts.created} />
+                                <TableHeaderWithHelp title="관리" helpText={helpTexts.actions} />
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentProducts.map(product => (
+                                <ProductTableRow
+                                    key={product.id}
+                                    product={product}
+                                    isSelected={selectedIds.includes(product.id)}
+                                    isEditing={editingId === product.id}
+                                    editData={editingId === product.id ? editData : {}}
+                                    onToggleSelect={toggleSelectItem}
+                                    onStartEditing={startEditing}
+                                    onCancelEditing={cancelEditing} 
+                                    onSaveEditing={saveEditing}
+                                    onEditChange={handleEditChange}
+                                />
+                            ))}
+                        </tbody>
+                    </table>
 
-                {currentProducts.length === 0 && (
-                    <div className="p-6 text-center text-gray-500">
-                        검색 결과가 없습니다.
-                    </div>
-                )}
-            </div>
+                    {currentProducts.length === 0 && (
+                        <div className="p-6 text-center text-gray-500">
+                            검색 결과가 없습니다.
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* 페이지네이션 */}
             <Pagination
@@ -351,9 +501,9 @@ export default function ProductPage() {
             {/* 선택된 상품 일괄 작업 */}
             <div className="mt-4 p-3 bg-gray-100 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-2">
                 <span className="text-sm font-medium">{selectedIds.length}개 선택됨</span>
-                <div className="space-x-2">
+                <div className="space-x-2 flex flex-wrap justify-center gap-2">
                     <button
-                        className={`px-3 py-1 border rounded ${selectedIds.length === 0
+                        className={`px-3 py-1 border rounded text-sm ${selectedIds.length === 0
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             : 'bg-white hover:bg-gray-50'
                             }`}
@@ -362,8 +512,8 @@ export default function ProductPage() {
                     >
                         선택 삭제
                     </button>
-                    <button className="px-3 py-1 border rounded bg-white hover:bg-gray-50">상태 변경</button>
-                    <button className="px-3 py-1 border rounded bg-white hover:bg-gray-50">가격 일괄 변경</button>
+                    <button className="px-3 py-1 border rounded bg-white hover:bg-gray-50 text-sm">상태 변경</button>
+                    <button className="px-3 py-1 border rounded bg-white hover:bg-gray-50 text-sm">가격 일괄 변경</button>
                 </div>
             </div>
         </div>

@@ -1,0 +1,261 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "user1@example.com",
+      "password": "hashed_password_1",
+      "name": "트러블",
+      "profileImage": null,
+      "location": "서울시 강남구",
+      "joinDate": "2024-01-15",
+      "phone": "010-1234-5678",
+      "likedFarms": [
+        1,
+        3
+      ],
+      "recentOrders": [
+        1001,
+        1002,
+        1003
+      ]
+    },
+    {
+      "id": "2",
+      "email": "user2@example.com",
+      "password": "hashed_password_2",
+      "name": "이농부",
+      "profileImage": null,
+      "location": "경기도 이천시",
+      "joinDate": "2024-01-20",
+      "phone": "010-2345-6789",
+      "likedFarms": [
+        2,
+        5
+      ],
+      "recentOrders": [
+        1004
+      ]
+    },
+    {
+      "id": "3",
+      "email": "user3@example.com",
+      "password": "hashed_password_3",
+      "name": "박판매",
+      "profileImage": null,
+      "location": "충청남도 공주시",
+      "joinDate": "2024-02-01",
+      "phone": "010-3456-7890",
+      "likedFarms": [
+        4
+      ],
+      "recentOrders": []
+    }
+  ],
+  "farms": [
+    {
+      "id": 1,
+      "name": "한들농원",
+      "location": "강원도 평창",
+      "rating": 4.8,
+      "productCount": 15
+    },
+    {
+      "id": 2,
+      "name": "화정 팜",
+      "location": "경기도 화정시",
+      "rating": 5,
+      "productCount": 22
+    },
+    {
+      "id": 3,
+      "name": "산골마을",
+      "location": "경상북도 안동",
+      "rating": 4.9,
+      "productCount": 10
+    },
+    {
+      "id": 4,
+      "name": "건강한 먹거리",
+      "location": "충청남도 공주",
+      "rating": 4.7,
+      "productCount": 18
+    },
+    {
+      "id": 5,
+      "name": "바른 농장",
+      "location": "제주도 서귀포",
+      "rating": 4.6,
+      "productCount": 25
+    }
+  ],
+  "products": {
+    "1": [
+      {
+        "id": 101,
+        "name": "유기농 햇감자",
+        "price": 12000,
+        "unit": "3kg",
+        "category": "채소",
+        "stock": 50,
+        "isFresh": true
+      },
+      {
+        "id": 102,
+        "name": "유기농 찰토마토",
+        "price": 15000,
+        "unit": "2kg",
+        "category": "과일",
+        "stock": 30,
+        "isFresh": true
+      },
+      {
+        "id": 103,
+        "name": "국내산 꿀고구마",
+        "price": 18000,
+        "unit": "5kg",
+        "category": "채소",
+        "stock": 25,
+        "isFresh": false
+      }
+    ],
+    "2": [
+      {
+        "id": 201,
+        "name": "제철 사과",
+        "price": 25000,
+        "unit": "5kg",
+        "category": "과일",
+        "stock": 40,
+        "isFresh": true
+      },
+      {
+        "id": 202,
+        "name": "신선한 배추",
+        "price": 8000,
+        "unit": "1포기",
+        "category": "채소",
+        "stock": 20,
+        "isFresh": true
+      }
+    ],
+    "3": [
+      {
+        "id": 301,
+        "name": "유기농 양파",
+        "price": 7000,
+        "unit": "2kg",
+        "category": "채소",
+        "stock": 100,
+        "isFresh": false
+      },
+      {
+        "id": 302,
+        "name": "국내산 당근",
+        "price": 9000,
+        "unit": "1kg",
+        "category": "채소",
+        "stock": 35,
+        "isFresh": true
+      },
+      {
+        "id": 303,
+        "name": "신선 표고버섯",
+        "price": 12000,
+        "unit": "500g",
+        "category": "버섯",
+        "stock": 15,
+        "isFresh": true
+      }
+    ],
+    "4": [
+      {
+        "id": 401,
+        "name": "국내산 쌀",
+        "price": 35000,
+        "unit": "10kg",
+        "category": "곡물",
+        "stock": 50,
+        "isFresh": false
+      },
+      {
+        "id": 402,
+        "name": "친환경 상추",
+        "price": 6000,
+        "unit": "200g",
+        "category": "채소",
+        "stock": 30,
+        "isFresh": true
+      }
+    ],
+    "5": [
+      {
+        "id": 501,
+        "name": "제주 감귤",
+        "price": 15000,
+        "unit": "3kg",
+        "category": "과일",
+        "stock": 45,
+        "isFresh": true
+      },
+      {
+        "id": 502,
+        "name": "한라봉",
+        "price": 18000,
+        "unit": "2kg",
+        "category": "과일",
+        "stock": 25,
+        "isFresh": true
+      }
+    ]
+  },
+  "orders": [
+    {
+      "id": 1001,
+      "userId": "1",
+      "productId": 201,
+      "productName": "제철 사과",
+      "quantity": 2,
+      "totalPrice": 30000,
+      "orderDate": "2024-02-28",
+      "status": "배송완료",
+      "farmId": 2,
+      "farmName": "푸른들팜"
+    },
+    {
+      "id": 1002,
+      "userId": "1",
+      "productId": 302,
+      "productName": "유기농 당근",
+      "quantity": 1,
+      "totalPrice": 9000,
+      "orderDate": "2024-02-25",
+      "status": "배송중",
+      "farmId": 3,
+      "farmName": "산골마을"
+    },
+    {
+      "id": 1003,
+      "userId": "1",
+      "productId": 402,
+      "productName": "친환경 상추",
+      "quantity": 3,
+      "totalPrice": 18000,
+      "orderDate": "2024-02-20",
+      "status": "주문확인",
+      "farmId": 4,
+      "farmName": "건강한 먹거리"
+    },
+    {
+      "id": 1004,
+      "userId": "2",
+      "productId": 303,
+      "productName": "신선 표고버섯",
+      "quantity": 2,
+      "totalPrice": 24000,
+      "orderDate": "2024-03-01",
+      "status": "예약중",
+      "farmId": 3,
+      "farmName": "산골마을"
+    }
+  ]
+}

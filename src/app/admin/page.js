@@ -11,11 +11,11 @@ export default function AdminDashboard() {
     
     const orderStatuses = [
         { label: "결제대기", count: 0 },
-        { label: "신규주문", count: 2 },
-        { label: "예약구매", count: 1 },
-        { label: "배송준비", count: 3 },
-        { label: "배송중", count: 5 },
-        { label: "배송완료", count: 3 },
+        { label: "신규주문", count: 0 },
+        { label: "예약구매", count: 0 },
+        { label: "배송준비", count: 0 },
+        { label: "배송중", count: 0 },
+        { label: "배송완료", count: 0 },
     ];
 
     const stockItems = [
@@ -25,16 +25,11 @@ export default function AdminDashboard() {
         { name: "포도", stock: 4 },
     ];
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
-
     return (
         <div className="min-h-screen flex flex-col md:flex-row">
             {/* 메인 컨텐츠 영역 */}
             <main className="flex-1 bg-gray-100 p-4 md:p-6">
                 <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">메인 대시보드</h1>
-                <p className="mb-4">안녕하세요, 바로바로 입니다!</p>
                 
                 {/* 위젯 그리드 레이아웃 */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">

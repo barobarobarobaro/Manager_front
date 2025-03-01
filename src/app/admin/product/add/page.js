@@ -1,5 +1,4 @@
 
-// app/main/product/add/page.js
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -80,7 +79,7 @@ export default function AddProductPage() {
       
       // 3초 후 상품 목록 페이지로 이동
       setTimeout(() => {
-        router.push("/main/product");
+        router.push("/admin/product");
       }, 3000);
     } catch (error) {
       console.error("상품 등록 오류:", error);
