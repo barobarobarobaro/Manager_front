@@ -2,15 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Footer from "@/components/user/common/Footer";
-import Header from "@/components/user/common/Header";
 import ProductCard from "@/components/user/common/ProductCard";
-import FarmCard from "@/components/user/common/FarmCard";
+import StoreCard from "@/components/user/common/StoreCard";
 import OrderItem from "@/components/user/common/OrderItem";
 import userService from "@/services/userService";
-
-
-
+import { AlertManager } from "@/libs/AlertManager";
 // 사용자 프로필 요약 컴포넌트
 const UserProfileSummary = ({ user }) => {
     if (!user) return null;
@@ -33,12 +29,13 @@ const UserProfileSummary = ({ user }) => {
 export default function Page() {
     // 기본 상태 관리
     const [userProfile, setUserProfile] = useState(null);
-    const [farms, setFarms] = useState([]);
-    const [likedFarms, setLikedFarms] = useState([]);
-    const [selectedFarmId, setSelectedFarmId] = useState(null);
+    const [stores, setStores] = useState([]);
+    const [likedStores, setLikedStores] = useState([]);
+    const [selectedStoreId, setSelectedStoreId] = useState(null);
     const [products, setProducts] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { addToCart } = userService.addToCart;
 
     // 페이지 로드 시 데이터 가져오기
     useEffect(() => {
@@ -47,29 +44,27 @@ export default function Page() {
                 setLoading(true);
 
                 // 사용자 프로필 가져오기
-                const profile = userService.getUserProfile("2");
+                const profile = userService.getUserProfile("3");
                 setUserProfile(profile);
 
                 // 가게 목록 가져오기
-                const allFarms = userService.getAllFarms();
-                setFarms(allFarms);
+                const allStores = userService.getAllStores();
+                setStores(allStores);
 
-                // 좋아요한 가게 목록 가져오기
-                const userLikedFarms = userService.getLikedStores();
-                setLikedFarms(userLikedFarms.map(farm => farm.id));
-
-                // 주문 내역 가져오기
-                const orders = userService.getRecentOrders();
-                setRecentOrders(orders);
+                // profile의 likedStores를 직접 사용
+                const likedStoresList = allStores.filter(store =>
+                    profile?.likedStores?.includes(store.id)
+                );
+                setLikedStores(likedStoresList);
 
                 // 기본적으로 첫 번째 좋아요한 가게 선택
-                if (profile.likedFarms.length > 0) {
-                    const firstLikedFarmId = profile.likedFarms[0];
-                    setSelectedFarmId(firstLikedFarmId);
+                if (likedStoresList.length > 0) {
+                    const firstLikedStoreId = likedStoresList[0].id;
+                    setSelectedStoreId(firstLikedStoreId);
 
                     // 해당 가게의 상품 목록 가져오기
-                    const farmProducts = userService.getStoreProducts(firstLikedFarmId.toString());
-                    setProducts(farmProducts);
+                    const storeProducts = userService.getStoreProducts(firstLikedStoreId.toString());
+                    setProducts(storeProducts);
                 }
 
                 setLoading(false);
@@ -83,30 +78,19 @@ export default function Page() {
     }, []);
 
     // 가게 선택 함수
-    const selectFarm = (farmId) => {
-        setSelectedFarmId(farmId);
-        const farmProducts = userService.getStoreProducts(farmId.toString());
-        setProducts(farmProducts);
+    const selectStore = (storeId) => {
+        setSelectedStoreId(storeId);
+        const storeProducts = userService.getStoreProducts(storeId.toString());
+        setProducts(storeProducts);
     };
-
-    // 장바구니에 추가 함수
-    const addToCart = (product) => {
-        alert(`${product.name}을(를) 구매합니다!`);
-    };
-
-    // 예약 구매 함수
-    const reserveProduct = (product) => {
-        alert(`${product.name}을(를) 예약 구매합니다!`);
-    };
-
-    // 좋아요한 가게만 필터링
-    const likedFarmsList = farms.filter(farm => userProfile?.likedFarms?.includes(farm.id));
+    const viewProductDetail = (product) => {
+        //router.push(`/user/product/${product.id}`);
+        AlertManager.success(`상품 상세 페이지로 이동: ${product.name}`);//테스트 용 팝업 알람입니다. 
+        //상품 상세 페이지로 이동하는 코드를 작성하세요.
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* 헤더 */}
-            <Header user={userProfile} />
-
             <main className="container mx-auto px-4 py-8">
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
@@ -122,29 +106,29 @@ export default function Page() {
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-semibold">좋아요한 가게</h2>
                                 <div className="text-sm text-gray-500">
-                                    총 {likedFarmsList.length}개
+                                    총 {likedStores.length}개
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {likedFarmsList.map((farm) => (
-                                    <FarmCard
-                                        key={farm.id}
-                                        farm={farm}
+                                {likedStores.map((store) => (
+                                    <StoreCard
+                                        key={store.id}
+                                        store={store}
                                         isLiked={true}
-                                        onSelect={selectFarm}
-                                        isSelected={selectedFarmId === farm.id}
+                                        onSelect={selectStore}
+                                        isSelected={selectedStoreId === store.id}
                                     />
                                 ))}
                             </div>
                         </section>
 
                         {/* 선택된 가게의 상품 섹션 */}
-                        {selectedFarmId && (
+                        {selectedStoreId && (
                             <section className="mb-8">
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-lg font-semibold">
-                                        {farms.find(f => f.id === selectedFarmId)?.name}의 상품
+                                        {stores.find(f => f.id === selectedStoreId)?.name}의 상품
                                     </h2>
                                     <div className="flex space-x-2">
                                         <select className="text-sm border-gray-300 rounded-md p-1">
@@ -167,7 +151,7 @@ export default function Page() {
                                                 key={product.id}
                                                 product={product}
                                                 onAddToCart={addToCart}
-                                                onReserve={reserveProduct}
+                                                onViewDetail={viewProductDetail}
                                             />
                                         ))
                                     ) : (
@@ -187,7 +171,7 @@ export default function Page() {
                         <section className="bg-white rounded-lg p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-semibold">최근 주문 내역</h2>
-                                <Link href="/order" className="text-sm text-green-600 hover:text-green-700">
+                                <Link href="/user/orders" className="text-sm text-green-600 hover:text-green-700">
                                     전체 주문 보기
                                 </Link>
                             </div>
@@ -228,8 +212,6 @@ export default function Page() {
                 )}
             </main>
 
-            {/* 푸터 */}
-            <Footer />
         </div>
     );
 }

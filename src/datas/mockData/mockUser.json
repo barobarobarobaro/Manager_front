@@ -9,7 +9,7 @@
       "location": "서울시 강남구",
       "joinDate": "2024-01-15",
       "phone": "010-1234-5678",
-      "likedFarms": [
+      "likedStores": [
         1,
         3
       ],
@@ -17,7 +17,8 @@
         1001,
         1002,
         1003
-      ]
+      ],
+      "cartItems":[]
     },
     {
       "id": "2",
@@ -28,13 +29,14 @@
       "location": "경기도 이천시",
       "joinDate": "2024-01-20",
       "phone": "010-2345-6789",
-      "likedFarms": [
+      "likedStores": [
         2,
         5
       ],
       "recentOrders": [
         1004
-      ]
+      ],
+      "cartItems":[]
     },
     {
       "id": "3",
@@ -45,10 +47,11 @@
       "location": "충청남도 공주시",
       "joinDate": "2024-02-01",
       "phone": "010-3456-7890",
-      "likedFarms": [
+      "likedStores": [
         4
       ],
-      "recentOrders": []
+      "recentOrders": [],
+      "cartItems":[]
     }
   ],
   "stores": [
@@ -226,7 +229,7 @@
         "price": 12000,
         "category": "포장재",
         "stock": 20,
-        "isFresh": true
+        "isFresh": false
       }
     ],
     "3": [
@@ -326,7 +329,7 @@
     "2": [
       {
         "id": 1,
-        "title": "푸른들팜 봄맞이 할인 행사",
+        "title": "화정팜 봄맞이 할인 행사",
         "date": "2025-03-01",
         "expiredDate": "2025-03-31",
         "content": "3월 한 달간 모든 상품 10% 할인 행사를 진행합니다. 많은 이용 부탁드립니다."

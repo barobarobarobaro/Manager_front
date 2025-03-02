@@ -13,7 +13,7 @@ export default function OrderItem({ order }) {
       <td className="py-3 px-2">
         <div>
           <span className="font-medium">{order.productName}</span>
-          <span className="text-sm text-gray-500 block">{order.quantity}개 · {order.farmName}</span>
+          <span className="text-sm text-gray-500 block">{order.quantity}개 · {order.storeName}</span>
         </div>
       </td>
       <td className="text-center py-3 px-2 text-sm text-gray-500">

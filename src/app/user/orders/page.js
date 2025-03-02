@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Header from "@/components/user/common/Header";
-import Footer from "@/components/user/common/Footer";
 import userService from "@/services/userService";
 
 // 주문 상태 태그 컴포넌트
@@ -70,7 +68,7 @@ const OrderDetailModal = ({ order, onClose }) => {
             </div>
             <div>
               <p className="font-medium">{order.productName}</p>
-              <p className="text-gray-600 text-sm">{order.farmName}</p>
+              <p className="text-gray-600 text-sm">{order.storeName}</p>
               <p className="text-sm mt-1">
                 <span className="text-gray-600">수량: </span>
                 <span>{order.quantity}개</span>
@@ -180,9 +178,6 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 헤더 */}
-      <Header user={userProfile} />
-      
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <h1 className="text-2xl font-bold mb-4 sm:mb-0">주문 내역</h1>
@@ -254,7 +249,7 @@ export default function OrdersPage() {
                       <div className="flex items-center mt-1">
                         <span className="text-xs text-gray-500">{new Date(order.orderDate).toLocaleDateString()}</span>
                         <span className="mx-1 text-gray-300">|</span>
-                        <span className="text-xs text-gray-500">{order.farmName}</span>
+                        <span className="text-xs text-gray-500">{order.storeName}</span>
                       </div>
                     </div>
                     <StatusBadge status={order.status} />
@@ -304,7 +299,7 @@ export default function OrdersPage() {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{order.productName}</div>
-                            <div className="text-sm text-gray-500">{order.farmName}</div>
+                            <div className="text-sm text-gray-500">{order.storeName}</div>
                           </div>
                         </div>
                       </td>
@@ -335,7 +330,6 @@ export default function OrdersPage() {
       </main>
       
       {/* 푸터 */}
-      <Footer />
       
       {/* 주문 상세 모달 */}
       {selectedOrder && (

@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Header from "@/components/user/common/Header";
-import Footer from "@/components/user/common/Footer";
 import ProductCard from "@/components/user/common/ProductCard";
 import userService from "@/services/userService";
 import storeService from "@/services/storeService";
@@ -108,7 +106,7 @@ const StoreInfo = ({ store }) => {
               <h2 className="text-xl font-bold">{store.name}</h2>
               {store.isOrganic && (
                 <span className="ml-2 text-sm bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
-                  {store.farmType || "인증 가게"}
+                  {store.storeType || "인증 가게"}
                 </span>
               )}
             </div>
@@ -313,7 +311,6 @@ export default function StoreDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 헤더 */}
-      <Header user={userProfile} />
 
       <main className="container mx-auto px-4 py-8">
         {loading ? (
@@ -389,7 +386,6 @@ export default function StoreDetailPage() {
       </main>
 
       {/* 푸터 */}
-      <Footer />
     </div>
   );
 }

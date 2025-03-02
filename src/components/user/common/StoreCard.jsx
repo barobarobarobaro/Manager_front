@@ -1,34 +1,34 @@
-// FarmCard.jsx
+// StoreCard.jsx
 'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function FarmCard({ farm, isLiked, onToggleLike, onSelect, isSelected }) {
+export default function StoreCard({ store, isLiked, onToggleLike, onSelect, isSelected }) {
   const router = useRouter();
   
   // 가게 데이터가 없는 경우 예외 처리
-  if (!farm) {
+  if (!store) {
     return null;
   }
 
   // 가게 상세 페이지로 이동
-  const goToFarmDetail = (e) => {
+  const goToStoreDetail = (e) => {
     e.stopPropagation(); // 선택 이벤트 방지
-    router.push(`/user/farms/${farm.id}`);
+    router.push(`/user/stores/${store.id}`);
   };
 
   return (
     <div
       className={`bg-white rounded-lg p-4 shadow-sm border hover:shadow-md transition-shadow cursor-pointer ${isSelected ? 'border-green-500 ring-2 ring-green-200' : 'border-gray-100'}`}
-      onClick={() => onSelect && onSelect(farm.id)}
+      onClick={() => onSelect && onSelect(store.id)}
     >
       <div className="flex justify-between items-start">
-        <h3 className="font-medium">{farm.name}</h3>
+        <h3 className="font-medium">{store.name}</h3>
         <button
           className="text-gray-400 hover:text-red-500"
           onClick={(e) => {
             e.stopPropagation();
-            onToggleLike && onToggleLike(farm.id);
+            onToggleLike && onToggleLike(store.id);
           }}
         >
           {isLiked ? (
@@ -42,22 +42,22 @@ export default function FarmCard({ farm, isLiked, onToggleLike, onSelect, isSele
           )}
         </button>
       </div>
-      <p className="text-gray-600 text-sm mt-1">{farm.location}</p>
+      <p className="text-gray-600 text-sm mt-1">{store.location}</p>
       <div className="flex items-center mt-2">
         <div className="flex items-center">
           <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
           </svg>
-          <span className="ml-1 text-sm">{farm.rating}</span>
+          <span className="ml-1 text-sm">{store.rating}</span>
         </div>
         <span className="mx-2 text-gray-300">|</span>
-        <span className="text-xs text-gray-500">{farm.productCount}개 상품</span>
+        <span className="text-xs text-gray-500">{store.productCount}개 상품</span>
       </div>
       
       {/* 상세 보기 버튼 추가 */}
       <div className="mt-3 flex justify-end">
         <button
-          onClick={goToFarmDetail}
+          onClick={goToStoreDetail}
           className="px-3 py-1.5 text-sm bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
         >
           상세 보기
