@@ -149,7 +149,7 @@ export default function ManageShippingPage() {
 
     const handleShipOrders = () => {
         if (selectedOrders.length === 0) {
-            alert("발송할 주문을 선택해주세요.");
+            AlertManager.info("발송할 주문을 선택해주세요.");
             return;
         }
 
@@ -160,7 +160,7 @@ export default function ManageShippingPage() {
         });
 
         if (invalidOrders.length > 0) {
-            alert("배송준비 상태인 주문만 발송할 수 있습니다.");
+            AlertManager.info("배송준비 상태인 주문만 발송할 수 있습니다.");
             return;
         }
 
@@ -187,12 +187,12 @@ export default function ManageShippingPage() {
         setOrders(updatedOrders);
         setSelectedOrders([]);
         setMobileActionMenu(null); // 모바일 액션 메뉴 닫기
-        alert(`${selectedOrders.length}건의 주문이 발송 처리되었습니다.`);
+        AlertManager.info(`${selectedOrders.length}건의 주문이 발송 처리되었습니다.`);
     };
 
     const handleCompleteShipping = () => {
         if (selectedOrders.length === 0) {
-            alert("배송 완료 처리할 주문을 선택해주세요.");
+            AlertManager.info("배송 완료 처리할 주문을 선택해주세요.");
             return;
         }
 
@@ -203,7 +203,7 @@ export default function ManageShippingPage() {
         });
 
         if (invalidOrders.length > 0) {
-            alert("배송중 상태인 주문만 배송 완료 처리할 수 있습니다.");
+            AlertManager.info("배송중 상태인 주문만 배송 완료 처리할 수 있습니다.");
             return;
         }
 
@@ -221,22 +221,22 @@ export default function ManageShippingPage() {
         setOrders(updatedOrders);
         setSelectedOrders([]);
         setMobileActionMenu(null); // 모바일 액션 메뉴 닫기
-        alert(`${selectedOrders.length}건의 주문이 배송 완료 처리되었습니다.`);
+        AlertManager.info(`${selectedOrders.length}건의 주문이 배송 완료 처리되었습니다.`);
     };
 
     const printShippingLabels = () => {
         if (selectedOrders.length === 0) {
-            alert("송장을 출력할 주문을 선택해주세요.");
+            AlertManager.info("송장을 출력할 주문을 선택해주세요.");
             return;
         }
 
-        alert(`${selectedOrders.length}건의 송장을 출력합니다.`);
+        AlertManager.info(`${selectedOrders.length}건의 송장을 출력합니다.`);
         setMobileActionMenu(null); // 모바일 액션 메뉴 닫기
         // 실제로는 인쇄 API 호출 필요
     };
 
     const exportShippingData = () => {
-        alert("배송 데이터를 엑셀 파일로 내보냅니다.");
+        AlertManager.info("배송 데이터를 엑셀 파일로 내보냅니다.");
         // 실제로는 엑셀 다운로드 API 호출 필요
     };
 
@@ -484,7 +484,7 @@ export default function ManageShippingPage() {
                                                                     className="text-xs text-blue-500 hover:underline"
                                                                     onClick={(e) => {
                                                                         e.preventDefault();
-                                                                        alert(`${order.trackingNumber} 배송조회 페이지로 이동합니다.`);
+                                                                        AlertManager.info(`${order.trackingNumber} 배송조회 페이지로 이동합니다.`);
                                                                     }}
                                                                 >
                                                                     배송조회
@@ -625,7 +625,7 @@ export default function ManageShippingPage() {
                                                                     className="text-xs text-blue-500 hover:underline"
                                                                     onClick={(e) => {
                                                                         e.preventDefault();
-                                                                        alert(`${order.trackingNumber} 배송조회 페이지로 이동합니다.`);
+                                                                        AlertManager.info(`${order.trackingNumber} 배송조회 페이지로 이동합니다.`);
                                                                     }}
                                                                 >
                                                                     배송조회

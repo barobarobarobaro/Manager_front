@@ -224,7 +224,7 @@ export default function StoreDetailPage() {
         setLoading(true);
 
         // 사용자 프로필 가져오기
-        const profile = userService.getUserProfile("2");
+        const profile = userService.getUserProfile();
         setUserProfile(profile);
 
         // 가게 기본 정보 가져오기

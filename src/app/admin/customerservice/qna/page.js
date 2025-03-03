@@ -1,4 +1,5 @@
 "use client";
+import { AlertManager } from "@/libs/AlertManager";
 import React, { useState, useEffect } from "react";
 import { FiMessageCircle, FiInbox, FiCheckCircle, FiFilter, FiDownload } from "react-icons/fi";
 
@@ -86,7 +87,7 @@ export default function InquiryManagementPage() {
 
     // 엑셀 다운로드 함수
     const exportInquiryData = () => {
-        alert("문의 데이터를 엑셀 파일로 내보냅니다.");
+        AlertManager.info("문의 데이터를 엑셀 파일로 내보냅니다.");
         // 실제 엑셀 다운로드 API 호출 로직 필요
     };
 

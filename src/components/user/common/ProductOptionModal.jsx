@@ -1,15 +1,16 @@
 'use client';
+import { AlertManager } from '@/libs/AlertManager';
 import React, { useState, useEffect } from 'react';
 
-export default function ProductOptionModal({ 
-  isOpen, 
-  onClose, 
-  product, 
-  onAddToCart 
+export default function ProductOptionModal({
+  isOpen,
+  onClose,
+  product,
+  onAddToCart
 }) {
   const [quantity, setQuantity] = useState(1);
   const [selectedOption, setSelectedOption] = useState('');
-  
+
   // 모달이 열릴 때마다 상태 초기화
   useEffect(() => {
     if (isOpen) {
@@ -31,7 +32,8 @@ export default function ProductOptionModal({
       quantity,
       option: selectedOption
     });
-    
+    AlertManager.info('장바구니에 상품이 추가되었습니다.');
+    console.log('장바구니 아이템:', localStorage.getItem('cart_items'));
     // 모달 닫기
     onClose();
   };
@@ -63,7 +65,7 @@ export default function ProductOptionModal({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50 transition-opacity"
       onClick={handleOverlayClick}
     >
@@ -86,7 +88,7 @@ export default function ProductOptionModal({
             <p className="text-sm text-gray-500">{product.category}</p>
             <p className="font-bold mt-1">{product.price?.toLocaleString() || '0'}원</p>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
           >

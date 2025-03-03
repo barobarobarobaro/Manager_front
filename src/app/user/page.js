@@ -35,7 +35,10 @@ export default function Page() {
     const [products, setProducts] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { addToCart } = userService.addToCart;
+    const handleAddItem = (item) => {
+        userService.addToCart(item);
+    };
+
 
     // 페이지 로드 시 데이터 가져오기
     useEffect(() => {
@@ -44,7 +47,7 @@ export default function Page() {
                 setLoading(true);
 
                 // 사용자 프로필 가져오기
-                const profile = userService.getUserProfile("3");
+                const profile = userService.getUserProfile();
                 setUserProfile(profile);
 
                 // 가게 목록 가져오기
@@ -150,7 +153,7 @@ export default function Page() {
                                             <ProductCard
                                                 key={product.id}
                                                 product={product}
-                                                onAddToCart={addToCart}
+                                                onAddToCart={handleAddItem}
                                                 onViewDetail={viewProductDetail}
                                             />
                                         ))

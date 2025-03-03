@@ -141,7 +141,7 @@ export default function CheckOrderPage() {
 
   const confirmOrders = () => {
     if (selectedOrders.length === 0) {
-      alert("확인할 주문을 선택해주세요.");
+      AlertManager.success("확인할 주문을 선택해주세요.");
       return;
     }
     
@@ -155,12 +155,12 @@ export default function CheckOrderPage() {
     
     setOrders(updatedOrders);
     setSelectedOrders([]);
-    alert(`${selectedOrders.length}건의 주문이 확인되었습니다.`);
+    AlertManager.success(`${selectedOrders.length}건의 주문이 확인되었습니다.`);
   };
 
   const prepareShipping = () => {
     if (selectedOrders.length === 0) {
-      alert("배송 준비할 주문을 선택해주세요.");
+      AlertManager.success("배송 준비할 주문을 선택해주세요.");
       return;
     }
     
@@ -174,7 +174,7 @@ export default function CheckOrderPage() {
     
     setOrders(updatedOrders);
     setSelectedOrders([]);
-    alert(`${selectedOrders.length}건의 주문이 배송 준비로 변경되었습니다.`);
+    AlertManager.success(`${selectedOrders.length}건의 주문이 배송 준비로 변경되었습니다.`);
   };
 
   // 아이템 확장/축소 토글
@@ -202,7 +202,7 @@ export default function CheckOrderPage() {
   const printPickingList = () => {
     if (selectedOrderForPrep) {
       // 실제로는 여기서 인쇄 기능 구현
-      alert("피킹 리스트가 인쇄되었습니다.");
+      AlertManager.success("피킹 리스트가 인쇄되었습니다.");
     }
   };
 

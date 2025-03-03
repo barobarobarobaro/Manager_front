@@ -1,0 +1,245 @@
+{
+    "users": [
+      {
+        "id": "1",
+        "name": "Alice",
+        "email": "alice@example.com",
+        "password": "password123",
+        "phone": "010-1111-2222",
+        "address": "서울 강남구 역삼동 123",
+        "likedStores": ["1", "2"],
+        "cartItems": [],
+        "createdAt": "2023-04-01T10:00:00.000Z"
+      },
+      {
+        "id": "2",
+        "name": "Bob",
+        "email": "bob@example.com",
+        "password": "bobpass",
+        "phone": "010-2222-3333",
+        "address": "서울 강남구 삼성동 456",
+        "likedStores": ["2"],
+        "cartItems": [],
+        "createdAt": "2023-04-02T11:00:00.000Z"
+      },
+      {
+        "id": "3",
+        "name": "Charlie",
+        "email": "charlie@example.com",
+        "password": "charliepass",
+        "phone": "010-3333-4444",
+        "address": "서울 강남구 대치동 789",
+        "likedStores": ["1", "3"],
+        "cartItems": [],
+        "createdAt": "2023-04-03T12:00:00.000Z"
+      }
+    ],
+    "stores": [
+      {
+        "id": "1",
+        "name": "농장직송",
+        "address": "서울시 강남구 역삼동",
+        "detail_address": "123-45",
+        "zip_code": "06200",
+        "is_opened": true,
+        "operation_time": "09:00-18:00",
+        "call_number": "02-1234-5678",
+        "free_shipping_threshold": 50000.00,
+        "shipping_fee": 3000.00
+      },
+      {
+        "id": "2",
+        "name": "신선마트",
+        "address": "서울시 강남구 삼성동",
+        "detail_address": "67-89",
+        "zip_code": "06100",
+        "is_opened": true,
+        "operation_time": "10:00-20:00",
+        "call_number": "02-2345-6789",
+        "free_shipping_threshold": 60000.00,
+        "shipping_fee": 2500.00
+      },
+      {
+        "id": "3",
+        "name": "맛있는가게",
+        "address": "서울시 강남구 대치동",
+        "detail_address": "101-12",
+        "zip_code": "06300",
+        "is_opened": false,
+        "operation_time": "11:00-19:00",
+        "call_number": "02-3456-7890",
+        "free_shipping_threshold": 40000.00,
+        "shipping_fee": 3500.00
+      }
+    ],
+    "businessInfos": [
+      {
+        "id": "1",
+        "user_id": "1",
+        "business_number": "123-45-67890",
+        "company_name": "농장직송 주식회사",
+        "company_address": "서울시 강남구 역삼동 123-45",
+        "contact": "02-1234-5678",
+        "representativeName": "홍길동",
+        "openingDate": "2020-01-15T00:00:00.000Z",
+        "businessType": "농산물",
+        "industry": "직송",
+        "created_at": "2023-03-15T12:00:00.000Z",
+        "updated_at": "2023-03-20T12:00:00.000Z"
+      },
+      {
+        "id": "2",
+        "user_id": "2",
+        "business_number": "987-65-43210",
+        "company_name": "신선마트 주식회사",
+        "company_address": "서울시 강남구 삼성동 67-89",
+        "contact": "02-2345-6789",
+        "representativeName": "이순신",
+        "openingDate": "2019-05-20T00:00:00.000Z",
+        "businessType": "유통",
+        "industry": "식품",
+        "created_at": "2023-03-16T09:30:00.000Z",
+        "updated_at": "2023-03-21T10:00:00.000Z"
+      },
+      {
+        "id": "3",
+        "user_id": "3",
+        "business_number": null,
+        "company_name": "맛있는가게",
+        "company_address": "서울시 강남구 대치동 101-12",
+        "contact": "02-3456-7890",
+        "representativeName": "김철수",
+        "openingDate": "2021-09-10T00:00:00.000Z",
+        "businessType": "외식",
+        "industry": "카페",
+        "created_at": "2023-03-17T14:00:00.000Z",
+        "updated_at": null
+      }
+    ],
+    "products": [
+      {
+        "id": "101",
+        "store_id": "1",
+        "name": "사과",
+        "price": 5000.00,
+        "description": "신선한 사과",
+        "stock": 100,
+        "main_image": "apple.jpg",
+        "created_at": "2023-03-10T08:00:00.000Z",
+        "updated_at": "2023-03-15T08:00:00.000Z"
+      },
+      {
+        "id": "102",
+        "store_id": "1",
+        "name": "배",
+        "price": 7000.00,
+        "description": "달콤한 배",
+        "stock": 50,
+        "main_image": "pear.jpg",
+        "created_at": "2023-03-11T09:00:00.000Z",
+        "updated_at": "2023-03-16T09:00:00.000Z"
+      },
+      {
+        "id": "201",
+        "store_id": "2",
+        "name": "바나나",
+        "price": 3000.00,
+        "description": "신선한 바나나",
+        "stock": 200,
+        "main_image": "banana.jpg",
+        "created_at": "2023-03-12T10:00:00.000Z",
+        "updated_at": "2023-03-17T10:00:00.000Z"
+      }
+    ],
+    "orders": [
+      {
+        "id": "1",
+        "userId": "1",
+        "storeId": "1",
+        "items": [
+          { "productId": "101", "name": "사과", "quantity": 2, "price": 5000.00, "option": "중" },
+          { "productId": "102", "name": "배", "quantity": 1, "price": 7000.00, "option": "대" }
+        ],
+        "totalAmount": 17000.00,
+        "shippingAddress": { "address": "서울시 강남구 역삼동 123-45" },
+        "paymentMethod": "card",
+        "status": "pending",
+        "createdAt": "2023-03-15T13:00:00.000Z"
+      },
+      {
+        "id": "2",
+        "userId": "2",
+        "storeId": "2",
+        "items": [
+          { "productId": "201", "name": "바나나", "quantity": 5, "price": 3000.00, "option": "보통" }
+        ],
+        "totalAmount": 15000.00,
+        "shippingAddress": { "address": "서울시 강남구 삼성동 67-89" },
+        "paymentMethod": "card",
+        "status": "delivered",
+        "createdAt": "2023-03-16T10:00:00.000Z"
+      },
+      {
+        "id": "3",
+        "userId": "3",
+        "storeId": "3",
+        "items": [
+          { "productId": "101", "name": "사과", "quantity": 3, "price": 5000.00, "option": "대" }
+        ],
+        "totalAmount": 15000.00,
+        "shippingAddress": { "address": "서울시 강남구 대치동 101-12" },
+        "paymentMethod": "card",
+        "status": "completed",
+        "createdAt": "2023-03-17T11:00:00.000Z"
+      }
+    ],
+    "sales": [
+      {
+        "storeId": "1",
+        "date": "2023-03-15",
+        "totalSalesAmount": 17000.00,
+        "orderCount": 1
+      },
+      {
+        "storeId": "2",
+        "date": "2023-03-16",
+        "totalSalesAmount": 15000.00,
+        "orderCount": 1
+      },
+      {
+        "storeId": "3",
+        "date": "2023-03-17",
+        "totalSalesAmount": 15000.00,
+        "orderCount": 1
+      }
+    ],
+    "notices": [
+      {
+        "noticeId": "N-001",
+        "storeId": "1",
+        "title": "휴무 안내",
+        "content": "이번 주말 휴무입니다.",
+        "expireDate": "2023-03-20T00:00:00.000Z",
+        "createdAt": "2023-03-10T10:00:00.000Z",
+        "updatedAt": "2023-03-11T10:00:00.000Z"
+      },
+      {
+        "noticeId": "N-002",
+        "storeId": "2",
+        "title": "신상품 출시",
+        "content": "새로운 상품들이 입고되었습니다.",
+        "expireDate": "2023-03-15T00:00:00.000Z",
+        "createdAt": "2023-03-12T12:00:00.000Z",
+        "updatedAt": "2023-03-13T12:00:00.000Z"
+      },
+      {
+        "noticeId": "N-003",
+        "storeId": "3",
+        "title": "이벤트 안내",
+        "content": "특별 할인 이벤트 진행 중입니다.",
+        "expireDate": "2023-03-18T00:00:00.000Z",
+        "createdAt": "2023-03-14T15:00:00.000Z",
+        "updatedAt": null
+      }
+    ]
+  }

@@ -10,7 +10,7 @@
       "joinDate": "2024-01-15",
       "phone": "010-1234-5678",
       "likedStores": [
-        1,
+        2,
         3
       ],
       "recentOrders": [
@@ -31,7 +31,7 @@
       "phone": "010-2345-6789",
       "likedStores": [
         2,
-        5
+        3
       ],
       "recentOrders": [
         1004
@@ -48,7 +48,7 @@
       "joinDate": "2024-02-01",
       "phone": "010-3456-7890",
       "likedStores": [
-        4
+        2
       ],
       "recentOrders": [],
       "cartItems":[]

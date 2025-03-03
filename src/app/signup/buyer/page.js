@@ -2,33 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Script from "next/script";
 import AddressInput from "@/components/common/AddressInput";
 import { formatFullAddress } from "@/services/address-service";
 import BusinessInfoForm from "@/components/common/BusinessInfoForm";
 import { AlertManager } from "@/libs/AlertManager";
+import { buyerSignup } from "@/services/signupService";
+import userService from "@/services/userService";
 
 export default function BuyerSignupPage() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1); // 현재 단계 (1: 동의, 2: 개인정보, 3: 사업자정보)
+  const [currentStep, setCurrentStep] = useState(1); // 1: 약관, 2: 개인정보, 3: 사업자정보
   const [isPostcodeScriptLoaded, setIsPostcodeScriptLoaded] = useState(false);
-
-
-  // 사업자 검증 API 함수 - 실제 구현은 별도 서비스로 대체
-  const validateBusinessInfo = async (data) => {
-    // 여기에 실제 API 호출 로직이 구현되어야 함
-    console.log("사업자 정보 검증 요청:", data);
-
-    // 테스트를 위한 가상 응답 - 실제 API 연동 시 이 부분 교체
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          valid: true,
-          message: "사업자 정보가 확인되었습니다."
-        });
-      }, 1000); // 1초 지연으로 API 호출처럼 보이게 함
-    });
-  };
+  const [useSameAddress, setUseSameAddress] = useState(false);
 
   const [formData, setFormData] = useState({
     // 약관 동의
@@ -43,9 +28,9 @@ export default function BuyerSignupPage() {
     name: "",
     phone: "",
     address: "",
-    zonecode: "",        // 우편번호
-    roadAddress: "",     // 도로명 주소
-    detailAddress: "",   // 상세 주소
+    zonecode: "",
+    roadAddress: "",
+    detailAddress: "",
 
     // 사업자 여부
     isBusinessOwner: false,
@@ -56,22 +41,22 @@ export default function BuyerSignupPage() {
       companyName: "",
       ceoName: "",
       businessAddress: "",
-      businessZonecode: "",       // 사업장 우편번호
-      businessRoadAddress: "",    // 사업장 도로명 주소
-      businessDetailAddress: "",  // 사업장 상세 주소
+      businessZonecode: "",
+      businessRoadAddress: "",
+      businessDetailAddress: "",
       businessType: "",
       businessCategory: "",
-      openDate: ""                // 사업자 개업일 추가
+      openDate: ""
     },
-    wantTaxInvoice: false,
-    businessValidated: false      // 사업자 검증 여부 추가
+    wantTaxInvoice: false
   });
+
+  // 이메일 중복 검증 상태
+  const [isEmailValid, setIsEmailValid] = useState(true);
 
   // 입력 변경 처리
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    // 체크박스 처리
     if (type === "checkbox") {
       setFormData({
         ...formData,
@@ -79,8 +64,6 @@ export default function BuyerSignupPage() {
       });
       return;
     }
-
-    // 사업자 정보 필드 처리
     if (name.startsWith("business_")) {
       const businessField = name.replace("business_", "");
       setFormData({
@@ -92,8 +75,6 @@ export default function BuyerSignupPage() {
       });
       return;
     }
-
-    // 일반 필드 처리
     setFormData({
       ...formData,
       [name]: value,
@@ -102,7 +83,6 @@ export default function BuyerSignupPage() {
 
   // 다음 단계로 이동
   const goToNextStep = async () => {
-    // 유효성 검사
     if (currentStep === 1) {
       if (!formData.termsAgreed || !formData.privacyAgreed) {
         AlertManager.error("필수 약관에 동의해야 합니다.", "약관 동의 필요");
@@ -118,14 +98,11 @@ export default function BuyerSignupPage() {
         return;
       }
     }
-
-    // 사업자가 아닌 경우 마지막 단계 건너뛰기
+    // 사업자가 아닌 경우 2단계에서 바로 제출
     if (currentStep === 2 && !formData.isBusinessOwner) {
       handleSubmit();
       return;
     }
-
-    // 다음 단계로 이동
     setCurrentStep(currentStep + 1);
   };
 
@@ -144,76 +121,72 @@ export default function BuyerSignupPage() {
       return;
     }
 
-    // 완성된 주소 조합
+    // 완성된 주소 조합 (개인 주소)
     const fullAddress = formatFullAddress(formData.roadAddress, formData.detailAddress);
-
-    // 사업자인 경우 사업자 정보 필수 확인
+    
+    // 사업자 정보 필수 검증 (사업자인 경우)
     if (formData.isBusinessOwner && formData.wantTaxInvoice) {
       const { businessNumber, companyName, ceoName, businessZonecode, businessRoadAddress } = formData.businessInfo;
-
       if (!businessNumber || !companyName || !ceoName) {
         AlertManager.error("사업자 정보를 모두 입력해주세요.", "사업자 정보 미입력");
         return;
       }
-
       if (!businessZonecode || !businessRoadAddress) {
         AlertManager.error("사업장 주소 정보를 입력해주세요.", "사업장 주소 미입력");
         return;
       }
-
-      // 사업자 정보 검증이 필요한 경우
-      if (!formData.businessValidated) {
-        const isValid = await validateBusiness();
-        if (!isValid) return;
-      }
     }
 
-    // 주소 정보 통합
+    // 데이터 통합
     const submitData = {
       ...formData,
       address: fullAddress
     };
 
     if (formData.isBusinessOwner && formData.wantTaxInvoice) {
-      // 사업장 주소 조합
       const fullBusinessAddress = formatFullAddress(
         formData.businessInfo.businessRoadAddress,
         formData.businessInfo.businessDetailAddress
       );
-
       submitData.businessInfo = {
         ...submitData.businessInfo,
         businessAddress: fullBusinessAddress
       };
     }
 
-    // 여기에 실제 회원가입 API 호출 로직 추가
     console.log("구매자 회원가입 정보:", submitData);
-
-    // 성공 시 로그인 페이지로 이동
-    AlertManager.success("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.", "회원가입 성공");
-
-    // 알림이 표시된 후 잠시 대기 후 리다이렉트
-    setTimeout(() => {
-      router.push("../login");
-    }, 3000);
+    const result = await buyerSignup(submitData);
+    if (!result.success) {
+      AlertManager.error(result.message, "회원가입 실패");
+    } else {
+      AlertManager.success("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.", "회원가입 성공");
+      setTimeout(() => {
+        router.push("../login");
+      }, 3000);
+    }
   };
 
-  // 진행 상태 표시
+  // 진행 상태 표시 (진행 바)
   const renderProgressBar = () => {
     return (
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div className="flex-1 text-center">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center mx-auto mb-1 ${currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>1</div>
+            <div className={`h-8 w-8 rounded-full flex items-center justify-center mx-auto mb-1 ${currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>
+              1
+            </div>
             <span className="text-sm font-medium">약관동의</span>
           </div>
           <div className="flex-1 text-center">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center mx-auto mb-1 ${currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>2</div>
+            <div className={`h-8 w-8 rounded-full flex items-center justify-center mx-auto mb-1 ${currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>
+              2
+            </div>
             <span className="text-sm font-medium">개인정보</span>
           </div>
           <div className="flex-1 text-center">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center mx-auto mb-1 ${currentStep >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>3</div>
+            <div className={`h-8 w-8 rounded-full flex items-center justify-center mx-auto mb-1 ${currentStep >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>
+              3
+            </div>
             <span className="text-sm font-medium">사업자정보</span>
           </div>
         </div>
@@ -321,8 +294,6 @@ export default function BuyerSignupPage() {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">개인정보 입력</h2>
-
-        {/* 이메일 */}
         <div className="grid grid-cols-1 gap-4">
           <label className="block">
             <span className="text-gray-700">이메일 <span className="text-red-500">*</span></span>
@@ -331,14 +302,33 @@ export default function BuyerSignupPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              onBlur={() => {
+                if (formData.email) {
+                  const duplicate = userService.isEmailDuplicate(formData.email);
+                  if (duplicate) {
+                    AlertManager.error("이미 사용 중인 이메일입니다.", "이메일 중복");
+                    setIsEmailValid(false);
+                  } else {
+                    setIsEmailValid(true);
+                  }
+                }
+              }}
               className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="이메일을 입력하세요"
               required
             />
+            {formData.email && (
+              <p className="mt-1 text-xs font-medium">
+                {isEmailValid ? (
+                  <span className="text-green-600">사용 가능한 이메일입니다.</span>
+                ) : (
+                  <span className="text-red-600">이미 사용 중인 이메일입니다.</span>
+                )}
+              </p>
+            )}
           </label>
         </div>
 
-        {/* 비밀번호 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
             <span className="text-gray-700">비밀번호 <span className="text-red-500">*</span></span>
@@ -367,7 +357,6 @@ export default function BuyerSignupPage() {
           </label>
         </div>
 
-        {/* 이름 및 연락처 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
             <span className="text-gray-700">이름 <span className="text-red-500">*</span></span>
@@ -396,7 +385,6 @@ export default function BuyerSignupPage() {
           </label>
         </div>
 
-        {/* 주소 */}
         <AddressInput
           zonecode={formData.zonecode}
           roadAddress={formData.roadAddress}
@@ -405,7 +393,6 @@ export default function BuyerSignupPage() {
           required={true}
         />
 
-        {/* 사업자 여부 체크 */}
         <div className="mt-6 pt-4 border-t border-gray-200">
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
@@ -427,8 +414,6 @@ export default function BuyerSignupPage() {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">사업자 정보 입력</h2>
-
-        {/* 세금계산서 발행 희망 여부 */}
         <label className="flex items-center space-x-2 cursor-pointer mb-4">
           <input
             type="checkbox"
@@ -441,45 +426,37 @@ export default function BuyerSignupPage() {
         </label>
 
         <div className={`p-4 bg-gray-50 rounded-md border border-gray-200 ${!formData.wantTaxInvoice ? 'opacity-70' : ''}`}>
-          <div className="flex justify-between items-center mb-3">
+          <div className="mb-3">
             <h3 className="text-lg font-medium text-gray-800">사업자 정보</h3>
-            {formData.wantTaxInvoice && formData.businessValidated && (
-              <span className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-md">
-                검증 완료
-              </span>
-            )}
-
           </div>
           <BusinessInfoForm
             businessInfo={formData.businessInfo}
             onChange={handleBusinessInfoChange}
             disabled={!formData.wantTaxInvoice}
-            showValidation={formData.wantTaxInvoice} // 이 부분이 누락됨
+            showValidation={formData.wantTaxInvoice}
           />
           <div className="mt-4">
             <h3 className="text-lg font-medium text-gray-800 mb-2">사업장 주소</h3>
+            <label className="flex items-center space-x-2 cursor-pointer mb-3">
+              <input
+                type="checkbox"
+                checked={useSameAddress}
+                onChange={handleSameAddressChange}
+                disabled={!formData.wantTaxInvoice}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className="text-gray-700">개인 주소와 동일합니다</span>
+            </label>
             <AddressInput
               zonecode={formData.businessInfo.businessZonecode}
               roadAddress={formData.businessInfo.businessRoadAddress}
               detailAddress={formData.businessInfo.businessDetailAddress}
               onChange={handleBusinessAddressChange}
-              disabled={!formData.wantTaxInvoice}
-              required={formData.wantTaxInvoice}
+              disabled={!formData.wantTaxInvoice || useSameAddress}
+              required={formData.wantTaxInvoice && !useSameAddress}
             />
           </div>
-          <div className="mt-4 flex justify-end">
-            {formData.wantTaxInvoice && !formData.businessValidated && (
-              <button
-                type="button"
-                onClick={validateBusiness}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                사업자 정보 검증
-              </button>
-            )}
-          </div>
         </div>
-
         <p className="text-sm text-gray-500 mt-2">
           <span className="text-red-500">*</span> 표시는 필수 입력 항목입니다.
         </p>
@@ -487,7 +464,22 @@ export default function BuyerSignupPage() {
     );
   };
 
-  // 현재 단계에 따른 컨텐츠 렌더링
+  const handleSameAddressChange = (e) => {
+    const isChecked = e.target.checked;
+    setUseSameAddress(isChecked);
+    if (isChecked) {
+      setFormData({
+        ...formData,
+        businessInfo: {
+          ...formData.businessInfo,
+          businessZonecode: formData.zonecode,
+          businessRoadAddress: formData.roadAddress,
+          businessDetailAddress: formData.detailAddress
+        }
+      });
+    }
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -501,7 +493,6 @@ export default function BuyerSignupPage() {
     }
   };
 
-  // 탐색 버튼 렌더링
   const renderNavigation = () => {
     return (
       <div className="flex justify-between mt-8">
@@ -544,15 +535,12 @@ export default function BuyerSignupPage() {
     );
   };
 
-  // 우편번호 스크립트 로드 확인
   useEffect(() => {
-    // window 객체에 daum이 있으면 스크립트가 로드된 것으로 판단
     if (window.daum && window.daum.Postcode) {
       setIsPostcodeScriptLoaded(true);
     }
   }, []);
 
-  // 주소 변경 처리
   const handleAddressChange = (addressData) => {
     setFormData({
       ...formData,
@@ -560,9 +548,19 @@ export default function BuyerSignupPage() {
       roadAddress: addressData.roadAddress,
       detailAddress: addressData.detailAddress
     });
+    if (useSameAddress) {
+      setFormData(prevData => ({
+        ...prevData,
+        businessInfo: {
+          ...prevData.businessInfo,
+          businessZonecode: addressData.zonecode,
+          businessRoadAddress: addressData.roadAddress,
+          businessDetailAddress: addressData.detailAddress
+        }
+      }));
+    }
   };
 
-  // 사업자 주소 변경 처리 (추가 함수)
   const handleBusinessAddressChange = (addressData) => {
     setFormData({
       ...formData,
@@ -571,74 +569,26 @@ export default function BuyerSignupPage() {
         businessZonecode: addressData.zonecode,
         businessRoadAddress: addressData.roadAddress,
         businessDetailAddress: addressData.detailAddress
-      },
-      businessValidated: false // 주소 변경 시 검증 상태 초기화
+      }
     });
   };
 
-  // 사업자 정보 변경 처리
   const handleBusinessInfoChange = (updatedBusinessInfo) => {
     setFormData({
       ...formData,
       businessInfo: {
         ...formData.businessInfo,
         ...updatedBusinessInfo
-      },
-      // 정보가 변경되면 검증 상태 초기화
-      businessValidated: false
+      }
     });
   };
 
-  // 사업자 정보 검증
-  const validateBusiness = async () => {
-    if (!formData.wantTaxInvoice) return true;
-
-    const { businessNumber, companyName, ceoName, openDate } = formData.businessInfo;
-
-    if (!businessNumber || !companyName || !ceoName || !openDate) {
-      AlertManager.error("사업자 정보를 모두 입력해주세요.", "사업자 정보 미입력");
-      return false;
-    }
-
-    try {
-      // 날짜 포맷 변환 (YYYY-MM-DD -> YYYYMMDD)
-      const formattedOpenDate = openDate.replace(/-/g, '');
-
-      // 검증 진행 알림 표시
-      AlertManager.info("사업자 정보를 검증 중입니다. 잠시만 기다려주세요...", "검증 중");
-
-      const result = await validateBusinessInfo({
-        businessNumber,
-        companyName,
-        ceoName,
-        openDate: formattedOpenDate
-      });
-
-      if (result.valid) {
-        setFormData(prev => ({
-          ...prev,
-          businessValidated: true
-        }));
-        AlertManager.success("사업자 정보가 확인되었습니다.", "검증 완료");
-        return true;
-      } else {
-        AlertManager.error(result.message, "검증 실패");
-        return false;
-      }
-    } catch (error) {
-      console.error('사업자 정보 검증 중 오류:', error);
-      AlertManager.error("사업자 정보 검증 중 오류가 발생했습니다.", "검증 오류");
-      return false;
-    }
-  };
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="container mx-auto max-w-2xl">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h1 className="text-3xl font-bold mb-2 text-center text-blue-600">구매자 회원가입</h1>
           <p className="text-center text-gray-600 mb-6">구매자로 가입하고 서비스를 이용해보세요</p>
-
-          {/* 주소 스크립트는 AddressInput 컴포넌트에서 로드됨 */}
 
           {renderProgressBar()}
 
@@ -658,8 +608,6 @@ export default function BuyerSignupPage() {
           </form>
         </div>
       </div>
-
-
     </div>
   );
 }

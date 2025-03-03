@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { FiStar, FiMessageSquare, FiFilter, FiDownload, FiX, FiCheck } from "react-icons/fi";
 import RichTextEditor from "@/components/common/RichTextEditor";
+import { AlertManager } from "@/libs/AlertManager";
 
 export default function ReviewManagementPage() {
     // 리뷰 상태 및 로딩 상태 관리를 위한 상태 변수
@@ -125,7 +126,7 @@ export default function ReviewManagementPage() {
         setReviews(updatedReviews);
         setReplyingTo(null);
         setReplyContent("");
-        alert("답변이 저장되었습니다.");
+        AlertManager.success("답변이 저장되었습니다.");
     };
 
     // 리뷰 상태 변경 함수
@@ -138,12 +139,12 @@ export default function ReviewManagementPage() {
         );
         
         setReviews(updatedReviews);
-        alert(`리뷰가 ${newStatus} 상태로 변경되었습니다.`);
+        AlertManager.success(`리뷰가 ${newStatus} 상태로 변경되었습니다.`);
     };
 
     // 엑셀 다운로드 함수
     const exportReviewData = () => {
-        alert("리뷰 데이터를 엑셀 파일로 내보냅니다.");
+        AlertManager.success("리뷰 데이터를 엑셀 파일로 내보냅니다.");
         // 실제 엑셀 다운로드 API 호출 로직 필요
     };
 
