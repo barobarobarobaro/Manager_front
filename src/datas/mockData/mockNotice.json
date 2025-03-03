@@ -1,0 +1,31 @@
+{
+    "notices": [
+      {
+        "noticeId": "N-001",
+        "storeId": "1",
+        "title": "휴무 안내",
+        "content": "이번 주말 휴무입니다.",
+        "expireDate": "2023-03-20T00:00:00.000Z",
+        "createdAt": "2023-03-10T10:00:00.000Z",
+        "updatedAt": "2023-03-11T10:00:00.000Z"
+      },
+      {
+        "noticeId": "N-002",
+        "storeId": "2",
+        "title": "신상품 출시",
+        "content": "새로운 상품들이 입고되었습니다.",
+        "expireDate": "2023-03-15T00:00:00.000Z",
+        "createdAt": "2023-03-12T12:00:00.000Z",
+        "updatedAt": "2023-03-13T12:00:00.000Z"
+      },
+      {
+        "noticeId": "N-003",
+        "storeId": "3",
+        "title": "이벤트 안내",
+        "content": "특별 할인 이벤트 진행 중입니다.",
+        "expireDate": "2023-03-18T00:00:00.000Z",
+        "createdAt": "2023-03-14T15:00:00.000Z",
+        "updatedAt": null
+      }
+    ]
+}

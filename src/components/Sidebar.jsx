@@ -65,7 +65,7 @@ export default function Sidebar() {
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                const response = await userService.getCurrentUser();
+                const response = await userService.getCurrentUserID();
                 setUser(response.data);
             } catch (error) {
                 console.error("사용자 정보 로드 실패:", error);
@@ -113,32 +113,37 @@ export default function Sidebar() {
             <div className="p-6 flex flex-col items-center">
                 {/* 프로필 영역 */}
                 {renderProfileImage()}
-                
+
                 <h2 className="text-2xl font-bold mb-1">
                     {loading ? "로딩 중..." : user?.businessName || user?.name || "이름 없음"}
                 </h2>
                 <p>
                     {loading ? "로딩 중..." : user?.name || "카테고리 없음"}
                 </p>
-                
+
                 {!loading && user && (
                     <div className="text-center">
                         <span className="text-sm text-gray-300 block mb-1">{user.email}</span>
                         <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">판매자</span>
                     </div>
                 )}
-                
+
                 <span className="text-sm text-gray-300 mt-3">
                     <Link href="/admin/profile" className="hover:text-white hover:underline">프로필 수정</Link>
                 </span>
             </div>
 
             <nav className="flex-grow mt-4">
-                <ul>
+                <hr className="my-2 border-gray-600" />
+                <CollapsibleNavSection title="메인">
                     <li className="px-6 py-2 hover:bg-gray-700">
-                        <Link href="/admin">메인으로</Link>
+                        <Link href="/admin/main/dashboard">대시보드</Link>
                     </li>
-                </ul>
+                    <li className="px-6 py-2 hover:bg-gray-700">
+                        <Link href="/admin/main/storeinfo">스토어 정보</Link>
+                    </li>
+                    {/* <li className="px-6 py-2 hover:bg-gray-700">상품 일괄등록</li> */}
+                </CollapsibleNavSection>
                 <hr className="my-2 border-gray-600" />
                 <CollapsibleNavSection title="상품 관리">
                     <li className="px-6 py-2 hover:bg-gray-700">

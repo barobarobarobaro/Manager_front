@@ -1,0 +1,118 @@
+{
+    "stores": [
+        {
+            "id": "1",
+            "name": "한들농원",
+            "location": "강원도 평창",
+            "rating": 4.8,
+            "productCount": 15,
+            "owner_id": "2",
+            "status": "active",
+            "created_at": "2023-12-01T10:00:00Z",
+            "category_id": "1",
+            "description": "한들농원은 강원도 평창의 맑은 공기와 깨끗한 물로 농산물을 재배합니다.",
+            "address": "강원도 평창군 대관령면 올림픽로 123",
+            "phone": "010-1234-5678",
+            "business_hours": "평일 09:00 - 18:00",
+            "closed_days": [
+                "일요일",
+                "공휴일"
+            ],
+            "image": "/images/stores/handeul.jpg",
+            "banner_image": "/images/banners/handeul-banner.jpg",
+            "is_organic": true,
+            "delivery_available": true,
+            "min_order_amount": 20000
+        },
+        {
+            "id": "2",
+            "name": "화정 팜",
+            "location": "경기도 화정시",
+            "rating": 5.0,
+            "productCount": 22,
+            "owner_id": "2",
+            "status": "active",
+            "created_at": "2023-11-15T09:30:00Z",
+            "category_id": "1",
+            "description": "화정 팜은 경기도 화정시의 깨끗한 토지에서 신선한 고수를 재배합니다.",
+            "address": "경기도 화정시 푸른마을로 456",
+            "phone": "010-6221-4722",
+            "business_hours": "평일 09:00 - 18:00, 토요일 09:00 - 15:00",
+            "closed_days": [
+                "일요일"
+            ],
+            "image": "/images/stores/hwajung.jpg",
+            "banner_image": "/images/banners/hwajung-banner.jpg",
+            "is_organic": true,
+            "delivery_available": true,
+            "min_order_amount": 15000
+        },
+        {
+            "id": "3",
+            "name": "산골마을",
+            "location": "경상북도 안동",
+            "rating": 4.9,
+            "productCount": 10,
+            "owner_id": "2",
+            "status": "active",
+            "created_at": "2024-01-05T14:20:00Z",
+            "category_id": "3",
+            "description": "산골마을은 경상북도 안동의 청정지역에서 전통 방식으로 농산물을 재배합니다.",
+            "address": "경상북도 안동시 산골길 78",
+            "phone": "010-3456-7890",
+            "business_hours": "매일 10:00 - 17:00",
+            "closed_days": [
+                "명절"
+            ],
+            "image": "/images/stores/sangol.jpg",
+            "banner_image": "/images/banners/sangol-banner.jpg",
+            "is_organic": false,
+            "delivery_available": true,
+            "min_order_amount": 30000
+        },
+        {
+            "id": "4",
+            "name": "건강한 먹거리",
+            "location": "충청남도 공주",
+            "rating": 4.7,
+            "productCount": 18,
+            "owner_id": "2",
+            "status": "active",
+            "created_at": "2023-10-10T11:45:00Z",
+            "category_id": "4",
+            "description": "건강한 먹거리는 충청남도 공주에서 건강을 생각하는 모든 분들을 위한 안전한 먹거리를 생산합니다.",
+            "address": "충청남도 공주시 건강로 321",
+            "phone": "010-2345-6789",
+            "business_hours": "평일 09:00 - 20:00, 주말 10:00 - 17:00",
+            "closed_days": [],
+            "image": "/images/stores/healthy.jpg",
+            "banner_image": "/images/banners/healthy-banner.jpg",
+            "is_organic": true,
+            "delivery_available": true,
+            "min_order_amount": 20000
+        },
+        {
+            "id": "5",
+            "name": "바른 농장",
+            "location": "제주도 서귀포",
+            "rating": 4.6,
+            "productCount": 25,
+            "owner_id": "2",
+            "status": "active",
+            "created_at": "2023-09-20T08:15:00Z",
+            "category_id": "2",
+            "description": "바른 농장은 제주도 서귀포의 화산토양에서 재배되는 특산품을 전문으로 합니다.",
+            "address": "제주도 서귀포시 바른길 555",
+            "phone": "010-8765-4321",
+            "business_hours": "매일 08:00 - 19:00",
+            "closed_days": [
+                "태풍 경보일"
+            ],
+            "image": "/images/stores/barun.jpg",
+            "banner_image": "/images/banners/barun-banner.jpg",
+            "is_organic": false,
+            "delivery_available": true,
+            "min_order_amount": 25000
+        }
+    ]
+}

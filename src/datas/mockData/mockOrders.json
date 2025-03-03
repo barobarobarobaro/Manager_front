@@ -1,0 +1,52 @@
+{
+    "orders": [
+    {
+      "id": 1001,
+      "userId": "1",
+      "productId": 201,
+      "productName": "제철 사과",
+      "quantity": 2,
+      "totalPrice": 30000,
+      "orderDate": "2024-02-28",
+      "status": "배송완료",
+      "storeId": 2,
+      "storeName": "푸른들팜"
+    },
+    {
+      "id": 1002,
+      "userId": "1",
+      "productId": 302,
+      "productName": "유기농 당근",
+      "quantity": 1,
+      "totalPrice": 9000,
+      "orderDate": "2024-02-25",
+      "status": "배송중",
+      "storeId": 3,
+      "storeName": "산골마을"
+    },
+    {
+      "id": 1003,
+      "userId": "1",
+      "productId": 402,
+      "productName": "친환경 상추",
+      "quantity": 3,
+      "totalPrice": 18000,
+      "orderDate": "2024-02-20",
+      "status": "주문확인",
+      "storeId": 4,
+      "storeName": "건강한 먹거리"
+    },
+    {
+      "id": 1004,
+      "userId": "2",
+      "productId": 303,
+      "productName": "신선 표고버섯",
+      "quantity": 2,
+      "totalPrice": 24000,
+      "orderDate": "2024-03-01",
+      "status": "예약중",
+      "storeId": 3,
+      "storeName": "산골마을"
+    }
+  ]
+}

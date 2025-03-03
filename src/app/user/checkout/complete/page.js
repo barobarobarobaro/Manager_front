@@ -4,30 +4,32 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import userService from '@/services/userService';
+import ImageOrIcon from '@/components/common/ImageOrIcon';
 
 const PaymentCompletePage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   
-  const [order, setOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
   useEffect(() => {
+    console.log('orderId:', orderId);
     if (!orderId) {
-      router.push('/');
+      router.push('/user');
       return;
     }
     
     const fetchOrderDetails = async () => {
       try {
-        // 모든 주문 내역을 가져와서 해당 ID의 주문을 찾음
+        // 최근 주문 내역 가져오기
         const recentOrders = userService.getRecentOrders();
-        const foundOrder = recentOrders.find(order => order.id === orderId);
-        
-        if (foundOrder) {
-          setOrder(foundOrder);
+        const foundOrders = recentOrders.filter(order => order.id === orderId);
+        console.log('foundOrders:', foundOrders);
+        if (foundOrders.length > 0) {
+          setOrders(foundOrders);
         } else {
           setError('주문 정보를 찾을 수 없습니다.');
         }
@@ -68,7 +70,7 @@ const PaymentCompletePage = () => {
     );
   }
   
-  if (!order) {
+  if (orders.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center bg-yellow-50 p-6 rounded-lg max-w-md">
@@ -84,7 +86,7 @@ const PaymentCompletePage = () => {
   }
   
   // 주문 날짜 형식화
-  const orderDate = new Date(order.createdAt);
+  const orderDate = new Date(orders[0].createdAt);
   const formattedDate = orderDate.toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
@@ -102,8 +104,13 @@ const PaymentCompletePage = () => {
     day: 'numeric'
   });
   
+  // 총 결제 금액 계산
+  const totalPaymentAmount = orders.reduce((total, order) => 
+    total + order.totalAmount, 0
+  );
+  
   return (
-    <div className="max-w-2xl mx-auto py-12 px-4">
+    <div className="max-w-3xl mx-auto py-12 px-4">
       <div className="text-center mb-10">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,53 +122,82 @@ const PaymentCompletePage = () => {
         <p className="text-gray-600">주문일시: {formattedDate}</p>
       </div>
       
-      <div className="bg-gray-50 p-6 rounded-lg mb-8">
-        <h2 className="font-bold text-xl mb-4">주문 상세 내역</h2>
-        
-        <div className="space-y-4 mb-6">
-          <h3 className="font-semibold">주문 상품</h3>
-          <ul className="divide-y">
-            {order.items.map((item, index) => (
-              <li key={index} className="py-2 flex justify-between">
-                <div>
-                  <span className="font-medium">{item.product.name}</span>
-                  {item.option && <span className="text-gray-500 ml-1">({item.option})</span>}
-                  <span className="text-gray-500 ml-2">x {item.quantity}</span>
-                </div>
-                <span>{(item.product.price * item.quantity).toLocaleString()}원</span>
-              </li>
-            ))}
-          </ul>
+      {/* 각 가게별 주문 정보 */}
+      {orders.map((order, index) => (
+        <div key={index} className="bg-gray-50 p-6 rounded-lg mb-8">
+          <h2 className="font-bold text-xl mb-4">{order.store.name} 주문 상세</h2>
           
-          <div className="border-t pt-3 flex justify-between font-bold">
-            <span>총 결제금액</span>
-            <span>{order.totalAmount.toLocaleString()}원</span>
+          <div className="space-y-4 mb-6">
+            <h3 className="font-semibold">주문 상품</h3>
+            <ul className="divide-y">
+              {order.items.map((item, itemIndex) => (
+                <li key={itemIndex} className="py-2 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 mr-3">
+                      <ImageOrIcon
+                        src={item.product.images?.[0]}
+                        alt={item.product.name}
+                        type="product"
+                      />
+                    </div>
+                    <div>
+                      <span className="font-medium">{item.product.name}</span>
+                      {item.option && (
+                        <span className="text-gray-500 ml-1">
+                          ({item.option.name})
+                          {item.option.price > 0 && ` +${item.option.price.toLocaleString()}원`}
+                        </span>
+                      )}
+                      <span className="text-gray-500 ml-2">x {item.quantity}</span>
+                    </div>
+                  </div>
+                  <span>
+                    {((item.product.price + (item.option?.price || 0)) * item.quantity).toLocaleString()}원
+                  </span>
+                </li>
+              ))}
+            </ul>
+            
+            <div className="border-t pt-3 flex justify-between font-bold">
+              <span>상품 합계</span>
+              <span>{order.totalAmount.toLocaleString()}원</span>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mb-6">
+            <h3 className="font-semibold">배송 정보</h3>
+            <p><span className="inline-block w-20 text-gray-600">받는 분:</span> {order.shippingAddress.name}</p>
+            <p><span className="inline-block w-20 text-gray-600">연락처:</span> {order.shippingAddress.phone}</p>
+            <p><span className="inline-block w-20 text-gray-600">배송지:</span> 
+              [{order.shippingAddress.zonecode}] {order.shippingAddress.roadAddress} {order.shippingAddress.detailAddress}
+            </p>
+            <p><span className="inline-block w-20 text-gray-600">배송 예정:</span> {formattedDeliveryDate}</p>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold">결제 정보</h3>
+            <p>
+              <span className="inline-block w-20 text-gray-600">결제 방법:</span>
+              {order.paymentMethod === 'card' && '신용카드 결제'}
+              {order.paymentMethod === 'bankTransfer' && '계좌이체'}
+              {order.paymentMethod === 'mobilePayment' && '휴대폰 결제'}
+            </p>
+            <p><span className="inline-block w-20 text-gray-600">주문 상태:</span> 
+              {order.status === 'pending' && '처리 중'}
+              {order.status === 'completed' && '결제 완료'}
+              {order.status === 'shipped' && '배송 중'}
+              {order.status === 'delivered' && '배송 완료'}
+              {order.status === 'cancelled' && '주문 취소'}
+            </p>
           </div>
         </div>
-        
-        <div className="space-y-2 mb-6">
-          <h3 className="font-semibold">배송 정보</h3>
-          <p><span className="inline-block w-20 text-gray-600">받는 분:</span> {order.shippingAddress.name}</p>
-          <p><span className="inline-block w-20 text-gray-600">연락처:</span> {order.shippingAddress.phone}</p>
-          <p><span className="inline-block w-20 text-gray-600">배송지:</span> {order.shippingAddress.address}</p>
-          <p><span className="inline-block w-20 text-gray-600">배송 예정:</span> {formattedDeliveryDate}</p>
-        </div>
-        
-        <div>
-          <h3 className="font-semibold">결제 정보</h3>
-          <p>
-            <span className="inline-block w-20 text-gray-600">결제 방법:</span>
-            {order.paymentMethod === 'card' && '신용카드 결제'}
-            {order.paymentMethod === 'bankTransfer' && '계좌이체'}
-            {order.paymentMethod === 'mobilePayment' && '휴대폰 결제'}
-          </p>
-          <p><span className="inline-block w-20 text-gray-600">주문 상태:</span> 
-            {order.status === 'pending' && '처리 중'}
-            {order.status === 'completed' && '결제 완료'}
-            {order.status === 'shipped' && '배송 중'}
-            {order.status === 'delivered' && '배송 완료'}
-            {order.status === 'cancelled' && '주문 취소'}
-          </p>
+      ))}
+      
+      {/* 총 결제 금액 */}
+      <div className="bg-white rounded-lg p-4 mb-8 border">
+        <div className="flex justify-between font-bold text-xl">
+          <span>총 결제 금액</span>
+          <span>{totalPaymentAmount.toLocaleString()}원</span>
         </div>
       </div>
       

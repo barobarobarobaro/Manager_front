@@ -58,7 +58,7 @@ const ImageOrIcon = ({
   className = '', 
   imgClassName = 'w-full h-full object-cover',
   iconClassName = 'w-full h-full',
-  iconColor = 'currentColor',
+  iconColor = '#888',
   ...props 
 }) => {
   const [hasError, setHasError] = useState(false);

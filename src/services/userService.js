@@ -1,4 +1,4 @@
-import mockData from '@/datas/mockData/mockUser.json';
+import mockData from '@/datas/mockData/index';
 
 // 로컬 스토리지 키 정의
 const STORAGE_KEYS = {
@@ -11,7 +11,6 @@ const STORAGE_KEYS = {
 // 초기 데이터 로드 (로컬 스토리지 또는 mock)
 const getInitialData = () => {
   if (typeof window === 'undefined') return mockData; // SSR 대비
-  localStorage.clear();
   const storedData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
   return storedData ? JSON.parse(storedData) : mockData;
 };
@@ -56,6 +55,14 @@ const triggerEvent = (eventName) => {
   window.dispatchEvent(new Event(eventName));
 };
 
+// 사용자 역할 가져오기
+const getUserRole = (userId) => {
+  const data = getInitialData();
+  const id = userId || getCurrentUserID();
+  const userRole = data.user_roles.find(role => role.user_id === id);
+  return userRole ? userRole.role : 'buyer'; // 기본값은 buyer
+};
+
 // 로그인 함수
 const login = async (email, password) => {
   try {
@@ -67,6 +74,9 @@ const login = async (email, password) => {
       throw new Error('이메일 또는 비밀번호가 일치하지 않습니다.');
     }
 
+    // 사용자 역할 확인
+    const role = getUserRole(user.id);
+
     // 토큰 생성 (실제로는 서버에서 받음)
     const mockToken = `mock_token_${user.id}_${Date.now()}`;
 
@@ -77,7 +87,15 @@ const login = async (email, password) => {
     // 이벤트 발생
     triggerEvent('userLoggedIn');
 
-    return { success: true, user: { id: user.id, name: user.name, email: user.email } };
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: role
+      }
+    };
   } catch (error) {
     console.error('로그인 오류:', error);
     return { success: false, message: error.message };
@@ -102,7 +120,7 @@ const logout = () => {
   }
 };
 
-// 회원가입 함수 (수정 버전)
+// 회원가입 함수
 const register = async (userData) => {
   try {
     console.debug("회원가입 시작:", userData);
@@ -121,64 +139,108 @@ const register = async (userData) => {
       throw new Error('필수 약관에 동의해야 합니다.');
     }
 
+    // 새 사용자 ID 생성
+    const newUserId = String(data.users.length + 1);
+
     // 새 사용자 객체 생성
     const newUser = {
-      id: String(data.users.length + 1), // 실제 환경에서는 서버에서 ID 생성
-      name: userData.name,
+      id: newUserId,
       email: userData.email,
       password: userData.password, // 실제로는 해싱 처리 필요
-      phone: userData.phone || '',
-      address: userData.address || '',
-      termsAgreed: userData.termsAgreed,
-      privacyAgreed: userData.privacyAgreed,
-      marketingAgreed: userData.marketingAgreed || false,
-      // 사업자인 경우, 사업자 정보 저장 (없으면 null)
-      businessInfo: userData.isBusinessOwner ? {
-        businessNumber: userData.businessInfo.businessNumber,
-        companyName: userData.businessInfo.companyName,
-        ceoName: userData.businessInfo.ceoName,
-        businessAddress: userData.businessInfo.businessAddress, // 완성된 주소
-        businessType: userData.businessInfo.businessType,
-        businessCategory: userData.businessInfo.businessCategory,
-        openDate: userData.businessInfo.openDate
-      } : null,
-      likedStores: [],
-      cartItems: [],
-      createdAt: new Date().toISOString()
+      name: userData.name,
+      profileImage: null,
+      joinDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD 형식
+      phone: userData.phone || ''
     };
 
     console.debug("생성된 새 사용자 객체:", newUser);
 
-    // role 설정: userData.role가 있으면 사용, 없으면 기본값 "buyer"
-    const role = userData.role ? userData.role : "buyer";
+    // 역할 설정 (buyer 또는 seller)
+    const role = userData.role || "buyer";
     const newUserRole = {
-      id: String((data.user_roles ? data.user_roles.length : 0) + 1),
-      user_id: newUser.id,
+      id: String(data.user_roles.length + 1),
+      user_id: newUserId,
       role: role
     };
 
     console.debug("새 사용자 역할 객체:", newUserRole);
 
-    // 데이터 업데이트 (새 사용자와 역할 정보 추가)
+    // 역할에 따른 프로필 정보 생성
+    if (role === "buyer") {
+      // 구매자 프로필 정보
+      const buyerProfile = {
+        likedStores: [],
+        recentOrders: [],
+        cartItems: [],
+        address: userData.address || {
+          zipCode: "",
+          address1: "",
+          address2: "",
+          recipient: userData.name,
+          recipientPhone: userData.phone || "",
+          isDefault: true
+        },
+        termsAgreed: userData.termsAgreed,
+        privacyAgreed: userData.privacyAgreed,
+        marketingAgreed: userData.marketingAgreed || false
+      };
+
+      // 구매자 프로필 추가
+      data.buyer_profiles = {
+        ...data.buyer_profiles,
+        [newUserId]: buyerProfile
+      };
+    } else if (role === "seller") {
+      // 판매자가 사업자인 경우
+      if (userData.isBusinessOwner && userData.businessInfo) {
+        // 판매자 프로필 정보
+        const sellerProfile = {
+          businessInfo: {
+            businessNumber: userData.businessInfo.businessNumber,
+            companyName: userData.businessInfo.companyName,
+            ceoName: userData.businessInfo.ceoName,
+            businessAddress: userData.businessInfo.businessAddress,
+            businessType: userData.businessInfo.businessType,
+            businessCategory: userData.businessInfo.businessCategory,
+            openDate: userData.businessInfo.openDate
+          },
+          stores: [],
+          bankInfo: {
+            bankName: "",
+            accountNumber: "",
+            accountHolder: userData.name
+          }
+        };
+
+        // 판매자 프로필 추가
+        data.seller_profiles = {
+          ...data.seller_profiles,
+          [newUserId]: sellerProfile
+        };
+      }
+    }
+
+    // 데이터 업데이트
     const updatedData = {
       ...data,
       users: [...data.users, newUser],
-      user_roles: [...(data.user_roles || []), newUserRole]
+      user_roles: [...data.user_roles, newUserRole]
     };
 
     saveData(updatedData);
-    console.debug("회원가입 데이터 저장 완료. updatedData:", updatedData);
+    console.debug("회원가입 데이터 저장 완료");
 
     return {
       success: true,
       message: '회원가입이 완료되었습니다.',
-      user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUserRole.role }
+      user: { id: newUser.id, name: newUser.name, email: newUser.email, role: role }
     };
   } catch (error) {
     console.error('회원가입 오류:', error);
     return { success: false, message: error.message };
   }
 };
+
 // 판매자의 가게 정보 등록을 위한 별도 함수
 const registerStore = async (userId, storeData) => {
   try {
@@ -199,36 +261,55 @@ const registerStore = async (userId, storeData) => {
       throw new Error('판매자만 가게를 등록할 수 있습니다.');
     }
 
+    // 새 가게 ID 생성
+    const newStoreId = String(data.stores.length + 1);
+
     // 새 가게 객체 생성
     const newStore = {
-      id: String(data.stores ? data.stores.length + 1 : 1),
-      owner_id: userId,
+      id: newStoreId,
       name: storeData.storeName,
+      owner_id: userId,
+      location: storeData.location || "",
       description: storeData.storeDescription || '',
-      phone: storeData.storePhone,
       address: storeData.storeAddress,
-      category_id: storeData.categoryId,
+      phone: storeData.storePhone,
       business_hours: storeData.businessHours || '',
-      delivery_info: storeData.deliveryInfo || '',
-      bank_info: {
-        bank_name: storeData.bankName,
-        account_number: storeData.accountNumber,
-        account_holder: storeData.accountHolder
-      },
+      closed_days: storeData.closedDays || [],
+      rating: 0,
+      productCount: 0,
+      image: storeData.image || null,
+      banner_image: storeData.bannerImage || null,
+      status: 'active',
       created_at: new Date().toISOString(),
-      status: 'active'
+      category_id: storeData.categoryId || "1",
+      is_organic: storeData.isOrganic || false,
+      delivery_available: storeData.deliveryAvailable || true,
+      min_order_amount: storeData.minOrderAmount || 10000
     };
 
     console.debug("생성된 새 가게 객체:", newStore);
 
+    // 판매자 프로필 업데이트 (stores 배열에 새 가게 ID 추가)
+    const sellerProfile = data.seller_profiles[userId];
+    if (sellerProfile) {
+      data.seller_profiles[userId] = {
+        ...sellerProfile,
+        stores: [...(sellerProfile.stores || []), newStoreId]
+      };
+    }
+
     // 데이터 업데이트 (새 가게 정보 추가)
     const updatedData = {
       ...data,
-      stores: [...(data.stores || []), newStore]
+      stores: [...data.stores, newStore],
+      products: {
+        ...data.products,
+        [newStoreId]: [] // 빈 상품 배열 초기화
+      }
     };
 
     saveData(updatedData);
-    console.debug("가게 정보 저장 완료. updatedData:", updatedData);
+    console.debug("가게 정보 저장 완료");
 
     return {
       success: true,
@@ -240,8 +321,9 @@ const registerStore = async (userId, storeData) => {
     return { success: false, message: error.message };
   }
 };
+
 // 사용자 프로필 가져오기
-const getUserProfile = (userID =null) => {
+const getUserProfile = (userID = null) => {
   try {
     const id = userID || getCurrentUserID();
     const data = getInitialData();
@@ -257,15 +339,35 @@ const getUserProfile = (userID =null) => {
       setCurrentUserID(id);
     }
 
+    // 사용자 역할 확인
+    const role = getUserRole(id);
+
+    // 역할에 따른 추가 정보 가져오기
+    let profileInfo = {};
+
+    if (role === "buyer") {
+      // 구매자 프로필 정보
+      profileInfo = data.buyer_profiles[id] || {};
+    } else if (role === "seller") {
+      // 판매자 프로필 정보
+      profileInfo = data.seller_profiles[id] || {};
+    }
+
     // 비밀번호는 제외하고 반환
     const { password, ...userInfo } = user;
-    return userInfo;
+
+    return {
+      ...userInfo,
+      role,
+      profileInfo
+    };
   } catch (error) {
     console.error('프로필 조회 오류:', error);
     return null;
   }
 };
-// userService.js 내부에 추가
+
+// 이메일 중복 확인
 const isEmailDuplicate = (email) => {
   try {
     const data = getInitialData();
@@ -277,19 +379,27 @@ const isEmailDuplicate = (email) => {
     return false;
   }
 };
+
 // 좋아요한 가게 목록 가져오기
 const getLikedStores = () => {
   try {
     const userId = getCurrentUserID();
     const data = getInitialData();
+    const role = getUserRole(userId);
 
-    // 사용자의 좋아요한 가게 ID 목록
-    const user = data.users.find(user => user.id === userId);
-    if (!user) {
+    // 사용자의 역할에 따라 다른 곳에서 좋아요 목록 가져오기
+    let likedStoreIds = [];
+
+    if (role === "buyer") {
+      // 구매자 프로필에서 가져오기
+      const buyerProfile = data.buyer_profiles[userId];
+      if (buyerProfile && buyerProfile.likedStores) {
+        likedStoreIds = buyerProfile.likedStores;
+      }
+    } else {
+      // 다른 역할(판매자)도 같은 방식으로 처리 가능
       return [];
     }
-
-    const likedStoreIds = user.likedStores;
 
     // 가게 정보 가져오기
     return data.stores.filter(store => likedStoreIds.includes(store.id));
@@ -304,36 +414,53 @@ const toggleLikeStore = (storeId) => {
   try {
     const userId = getCurrentUserID();
     const data = getInitialData();
+    const role = getUserRole(userId);
 
-    // 사용자 찾기
-    const userIndex = data.users.findIndex(user => user.id === userId);
-    if (userIndex === -1) {
-      throw new Error('사용자를 찾을 수 없습니다.');
+    // 구매자만 좋아요 가능
+    if (role !== "buyer") {
+      throw new Error('구매자만 가게를 좋아요할 수 있습니다.');
     }
 
-    // 사용자 정보 복사
-    const updatedUsers = [...data.users];
-    const user = { ...updatedUsers[userIndex] };
+    // 구매자 프로필 가져오기
+    const buyerProfile = data.buyer_profiles[userId];
+    if (!buyerProfile) {
+      throw new Error('구매자 프로필을 찾을 수 없습니다.');
+    }
+
+    // 좋아요한 가게 목록 확인
+    const likedStores = buyerProfile.likedStores || [];
 
     // 좋아요 토글
-    const likedIndex = user.likedStores.indexOf(storeId);
-    if (likedIndex === -1) {
-      user.likedStores = [...user.likedStores, storeId];
+    let updatedLikedStores;
+    if (likedStores.includes(storeId)) {
+      // 이미 좋아요 한 경우 제거
+      updatedLikedStores = likedStores.filter(id => id !== storeId);
     } else {
-      user.likedStores = user.likedStores.filter(id => id !== storeId);
+      // 새로 좋아요 추가
+      updatedLikedStores = [...likedStores, storeId];
     }
 
-    // 업데이트된 사용자 정보 저장
-    updatedUsers[userIndex] = user;
-    saveData({
+    // 구매자 프로필 업데이트
+    const updatedBuyerProfile = {
+      ...buyerProfile,
+      likedStores: updatedLikedStores
+    };
+
+    // 데이터 업데이트
+    const updatedData = {
       ...data,
-      users: updatedUsers
-    });
+      buyer_profiles: {
+        ...data.buyer_profiles,
+        [userId]: updatedBuyerProfile
+      }
+    };
+
+    saveData(updatedData);
 
     // 이벤트 발생
     triggerEvent('likedStoresUpdated');
 
-    return user.likedStores.includes(storeId);
+    return updatedLikedStores.includes(storeId);
   } catch (error) {
     console.error('가게 좋아요 토글 오류:', error);
     return false;
@@ -389,10 +516,18 @@ const getCartItems = () => {
 
     // 저장된 장바구니가 없으면 사용자 데이터에서 가져오기
     const userId = getCurrentUserID();
+    const role = getUserRole(userId);
     const data = getInitialData();
-    const user = data.users.find(user => user.id === userId);
 
-    const cartItems = user?.cartItems || [];
+    let cartItems = [];
+
+    if (role === "buyer") {
+      // 구매자 프로필에서 장바구니 가져오기
+      const buyerProfile = data.buyer_profiles[userId];
+      if (buyerProfile) {
+        cartItems = buyerProfile.cartItems || [];
+      }
+    }
 
     // 로컬 스토리지에 저장
     if (typeof window !== 'undefined') {
@@ -411,6 +546,12 @@ const addToCart = (item) => {
     // 현재 장바구니 가져오기
     const cartItems = getCartItems();
     console.log('userService.addToCart 호출됨:', item);
+
+    // 아이템 유효성 검사
+    if (!item || !item.product || !item.quantity) {
+      throw new Error('유효하지 않은 상품 정보입니다.');
+    }
+
     // 이미 같은 상품이 장바구니에 있는지 확인
     const existingItemIndex = cartItems.findIndex(
       cartItem =>
@@ -429,7 +570,7 @@ const addToCart = (item) => {
     } else {
       // 새 상품인 경우 목록에 추가
       updatedCart.push({
-        id: Date.now(), // 고유 ID 생성
+        id: Date.now().toString(), // 고유 ID 생성
         product: item.product,
         quantity: item.quantity,
         option: item.option
@@ -441,7 +582,7 @@ const addToCart = (item) => {
       localStorage.setItem(STORAGE_KEYS.CART_ITEMS, JSON.stringify(updatedCart));
     }
 
-    // 사용자 데이터에도 업데이트 (선택적)
+    // 사용자 데이터에도 업데이트
     updateUserCartItems(updatedCart);
 
     // 이벤트 발생
@@ -467,7 +608,7 @@ const removeFromCart = (itemId) => {
       localStorage.setItem(STORAGE_KEYS.CART_ITEMS, JSON.stringify(updatedCart));
     }
 
-    // 사용자 데이터에도 업데이트 (선택적)
+    // 사용자 데이터에도 업데이트
     updateUserCartItems(updatedCart);
 
     // 이벤트 발생
@@ -498,7 +639,7 @@ const updateCartItemQuantity = (itemId, quantity) => {
       localStorage.setItem(STORAGE_KEYS.CART_ITEMS, JSON.stringify(updatedCart));
     }
 
-    // 사용자 데이터에도 업데이트 (선택적)
+    // 사용자 데이터에도 업데이트
     updateUserCartItems(updatedCart);
 
     // 이벤트 발생
@@ -518,7 +659,7 @@ const clearCart = () => {
       localStorage.setItem(STORAGE_KEYS.CART_ITEMS, JSON.stringify([]));
     }
 
-    // 사용자 데이터에도 업데이트 (선택적)
+    // 사용자 데이터에도 업데이트
     updateUserCartItems([]);
 
     // 이벤트 발생
@@ -535,24 +676,30 @@ const clearCart = () => {
 const updateUserCartItems = (cartItems) => {
   try {
     const userId = getCurrentUserID();
+    const role = getUserRole(userId);
     const data = getInitialData();
 
-    // 사용자 찾기
-    const userIndex = data.users.findIndex(user => user.id === userId);
-    if (userIndex === -1) return;
+    if (role === "buyer") {
+      // 구매자 프로필 업데이트
+      const buyerProfile = data.buyer_profiles[userId];
+      if (buyerProfile) {
+        const updatedBuyerProfile = {
+          ...buyerProfile,
+          cartItems
+        };
 
-    // 사용자 데이터 업데이트
-    const updatedUsers = [...data.users];
-    updatedUsers[userIndex] = {
-      ...updatedUsers[userIndex],
-      cartItems
-    };
+        // 데이터 업데이트
+        const updatedData = {
+          ...data,
+          buyer_profiles: {
+            ...data.buyer_profiles,
+            [userId]: updatedBuyerProfile
+          }
+        };
 
-    // 데이터 저장
-    saveData({
-      ...data,
-      users: updatedUsers
-    });
+        saveData(updatedData);
+      }
+    }
   } catch (error) {
     console.error('사용자 장바구니 업데이트 오류:', error);
   }
@@ -564,14 +711,32 @@ const createOrder = (orderData) => {
     const userId = getCurrentUserID();
     const data = getInitialData();
 
+    // 새 주문 ID 생성 (고유한 ID 생성)
+    const newOrderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // 가게 정보 추가
+    const storeId = orderData.store?.id || 'unknown';
+
     // 새 주문 생성
     const newOrder = {
-      id: String(data.orders.length + 1), // 실제로는 서버에서 생성
-      userId,
-      items: orderData.items || getCartItems(),
+      id: newOrderId,
+      userId: userId,
+      store: {
+        id: storeId,
+        name: orderData.store?.name || '알 수 없는 가게'
+      },
+      items: orderData.items || [],
       totalAmount: orderData.totalAmount,
-      shippingAddress: orderData.shippingAddress,
+      shippingAddress: {
+        name: orderData.shippingAddress.name,
+        phone: orderData.shippingAddress.phone,
+        zonecode: orderData.shippingAddress.zonecode,
+        roadAddress: orderData.shippingAddress.roadAddress,
+        detailAddress: orderData.shippingAddress.detailAddress || '',
+        message: orderData.shippingAddress.message || ''
+      },
       paymentMethod: orderData.paymentMethod,
+      shippingFee: orderData.shippingFee || 0,
       status: 'pending', // 초기 상태
       createdAt: new Date().toISOString()
     };
@@ -581,10 +746,32 @@ const createOrder = (orderData) => {
       ...data,
       orders: [...data.orders, newOrder]
     };
-    saveData(updatedData);
 
-    // 주문 후 장바구니 비우기
-    clearCart();
+    // 구매자 프로필 업데이트 (recentOrders에 추가)
+    if (data.buyer_profiles[userId]) {
+      const buyerProfile = data.buyer_profiles[userId];
+      updatedData.buyer_profiles = {
+        ...data.buyer_profiles,
+        [userId]: {
+          ...buyerProfile,
+          recentOrders: [...(buyerProfile.recentOrders || []), newOrderId]
+        }
+      };
+    }
+
+    // 장바구니에서 현재 주문 상품 제거
+    const remainingCartItems = getCartItems().filter(cartItem =>
+      !orderData.items.some(orderItem =>
+        orderItem.product.id === cartItem.product.id &&
+        orderItem.quantity === cartItem.quantity
+      )
+    );
+
+    // 장바구니 업데이트
+    localStorage.setItem('cart_items', JSON.stringify(remainingCartItems));
+
+    // 데이터 저장
+    saveData(updatedData);
 
     // 이벤트 발생
     triggerEvent('orderCreated');
@@ -596,40 +783,93 @@ const createOrder = (orderData) => {
   }
 };
 
+// 주문 상세 정보 가져오기
+const getOrderDetail = (orderId) => {
+  try {
+    const data = getInitialData();
+    const order = data.orders.find(order => order.id === orderId);
+    if (!order) {
+      throw new Error("주문 정보를 찾을 수 없습니다.");
+    }
+    return order;
+  } catch (error) {
+    console.error("주문 상세 조회 오류:", error);
+    return null;
+  }
+};
+
 // 프로필 업데이트
 const updateUserProfile = (profileData) => {
   try {
     const userId = getCurrentUserID();
+    const role = getUserRole(userId);
     const data = getInitialData();
 
-    // 사용자 찾기
+    // 사용자 기본 정보 업데이트
     const userIndex = data.users.findIndex(user => user.id === userId);
     if (userIndex === -1) {
       throw new Error('사용자를 찾을 수 없습니다.');
     }
 
-    // 수정 불가능한 필드 제외
-    const { id, password, email, ...updatableFields } = profileData;
+    // 수정 가능한 기본 필드 추출
+    const { name, phone, profileImage } = profileData;
+    const updatedFields = {};
 
-    // 사용자 정보 업데이트
+    if (name !== undefined) updatedFields.name = name;
+    if (phone !== undefined) updatedFields.phone = phone;
+    if (profileImage !== undefined) updatedFields.profileImage = profileImage;
+
+    // 사용자 기본 정보 업데이트
     const updatedUsers = [...data.users];
     updatedUsers[userIndex] = {
       ...updatedUsers[userIndex],
-      ...updatableFields
+      ...updatedFields
     };
 
-    // 데이터 저장
-    saveData({
+    // 역할에 따른 프로필 정보 업데이트
+    let updatedData = {
       ...data,
       users: updatedUsers
-    });
+    };
+
+    if (role === "buyer") {
+      // 구매자 프로필 업데이트
+      const { address, marketingAgreed } = profileData;
+      const buyerProfile = data.buyer_profiles[userId];
+
+      if (buyerProfile) {
+        updatedData.buyer_profiles = {
+          ...data.buyer_profiles,
+          [userId]: {
+            ...buyerProfile,
+            ...(address && { address }),
+            ...(marketingAgreed !== undefined && { marketingAgreed })
+          }
+        };
+      }
+    } else if (role === "seller") {
+      // 판매자 프로필 업데이트
+      const { businessInfo, bankInfo } = profileData;
+      const sellerProfile = data.seller_profiles[userId];
+
+      if (sellerProfile) {
+        updatedData.seller_profiles = {
+          ...data.seller_profiles,
+          [userId]: {
+            ...sellerProfile,
+            ...(businessInfo && { businessInfo }),
+            ...(bankInfo && { bankInfo })
+          }
+        };
+      }
+    }
+
+    saveData(updatedData);
 
     // 이벤트 발생
     triggerEvent('profileUpdated');
 
-    // 비밀번호 제외하고 반환
-    const { password: _, ...updatedProfile } = updatedUsers[userIndex];
-    return { success: true, profile: updatedProfile };
+    return { success: true, profile: getUserProfile(userId) };
   } catch (error) {
     console.error('프로필 업데이트 오류:', error);
     return { success: false, message: error.message };
@@ -640,6 +880,7 @@ const updateUserProfile = (profileData) => {
 const isAuthenticated = () => {
   return !!getUserToken();
 };
+
 // 테스트용: 모든 주문 삭제 기능
 const clearAllOrders = () => {
   try {
@@ -654,6 +895,18 @@ const clearAllOrders = () => {
       ...data,
       orders: updatedOrders
     };
+
+    // 구매자 프로필에서도 주문 정보 제거
+    if (data.buyer_profiles[userId]) {
+      updatedData.buyer_profiles = {
+        ...data.buyer_profiles,
+        [userId]: {
+          ...data.buyer_profiles[userId],
+          recentOrders: []
+        }
+      };
+    }
+
     saveData(updatedData);
 
     // 이벤트 발생
@@ -663,20 +916,6 @@ const clearAllOrders = () => {
   } catch (error) {
     console.error('주문 삭제 오류:', error);
     return { success: false, message: error.message };
-  }
-};
-// 주문 상세 정보 가져오기 함수 추가
-const getOrderDetail = (orderId) => {
-  try {
-    const data = getInitialData();
-    const order = data.orders.find(order => order.id === orderId);
-    if (!order) {
-      throw new Error("주문 정보를 찾을 수 없습니다.");
-    }
-    return order;
-  } catch (error) {
-    console.error("주문 상세 조회 오류:", error);
-    return null;
   }
 };
 const userService = {

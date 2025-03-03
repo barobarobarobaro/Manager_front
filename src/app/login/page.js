@@ -35,7 +35,7 @@ const result = await userService.login(email, password);
         if (provider === "kakao") {
           router.push("./user");
         } else if (provider === "naver") {
-          router.push("./admin");
+          router.push("./admin/guide");
         }
       } else {
         setIsNewUser(true);

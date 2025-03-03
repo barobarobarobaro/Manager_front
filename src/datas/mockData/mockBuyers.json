@@ -1,0 +1,36 @@
+{
+    "buyer_profiles": {
+        "1": {
+          "likedStores": ["2", "3"],
+          "recentOrders": ["1001", "1002", "1003"],
+          "cartItems": [],
+          "address": {
+            "zipCode": "06123",
+            "address1": "서울시 강남구 테헤란로 123",
+            "address2": "456동 789호",
+            "recipient": "김구매자",
+            "recipientPhone": "010-1234-5678",
+            "isDefault": true
+          },
+          "termsAgreed": true,
+          "privacyAgreed": true,
+          "marketingAgreed": true
+        },
+        "2": {
+          "likedStores": ["2", "5"],
+          "recentOrders": ["1004"],
+          "cartItems": [],
+          "address": {
+            "zipCode": "04157",
+            "address1": "서울시 마포구 월드컵북로 123",
+            "address2": "101동 202호",
+            "recipient": "이구매자",
+            "recipientPhone": "010-2345-6789",
+            "isDefault": true
+          },
+          "termsAgreed": true,
+          "privacyAgreed": true,
+          "marketingAgreed": false
+        }
+      }
+}

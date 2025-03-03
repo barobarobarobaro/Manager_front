@@ -6,12 +6,11 @@ import AddressInput from "@/components/common/AddressInput";
 import { formatFullAddress } from "@/services/address-service";
 import BusinessInfoForm from "@/components/common/BusinessInfoForm";
 import { AlertManager } from "@/libs/AlertManager";
-import { sellerSignup } from "@/services/signupService";
 import userService from "@/services/userService";
 
 export default function SellerSignupPage() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1); // 1: 약관, 2: 개인정보, 3: 사업자정보, 4: 가게정보
+  const [currentStep, setCurrentStep] = useState(1); // 1: 약관, 2: 개인정보, 3: 사업자정보
   const [isPostcodeScriptLoaded, setIsPostcodeScriptLoaded] = useState(false);
   const [useSameAddress, setUseSameAddress] = useState(false);
   const [useBusinessAsStoreAddress, setUseBusinessAsStoreAddress] = useState(false);
@@ -21,7 +20,7 @@ export default function SellerSignupPage() {
     termsAgreed: false,
     privacyAgreed: false,
     marketingAgreed: false,
-    sellerPolicyAgreed: false, // 판매자 약관 추가
+    sellerPolicyAgreed: false,
 
     // 개인정보
     email: "",
@@ -46,23 +45,6 @@ export default function SellerSignupPage() {
       businessType: "",
       businessCategory: "",
       openDate: ""
-    },
-
-    // 가게 정보 (판매자 전용)
-    storeInfo: {
-      storeName: "",
-      storeDescription: "",
-      storePhone: "",
-      storeAddress: "",
-      storeZonecode: "",
-      storeRoadAddress: "",
-      storeDetailAddress: "",
-      businessHours: "",
-      categoryId: "",
-      deliveryInfo: "",
-      bankName: "",
-      accountNumber: "",
-      accountHolder: ""
     }
   });
 
@@ -86,17 +68,6 @@ export default function SellerSignupPage() {
         businessInfo: {
           ...formData.businessInfo,
           [businessField]: value
-        }
-      });
-      return;
-    }
-    if (name.startsWith("store_")) {
-      const storeField = name.replace("store_", "");
-      setFormData({
-        ...formData,
-        storeInfo: {
-          ...formData.storeInfo,
-          [storeField]: value
         }
       });
       return;
@@ -151,104 +122,37 @@ export default function SellerSignupPage() {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
 
-    // 가게 정보 검증
-    const { storeName, storePhone, storeZonecode, storeRoadAddress, bankName, accountNumber, accountHolder } = formData.storeInfo;
-
-    if (!storeName || !storePhone) {
-      AlertManager.error("가게명과 연락처는 필수 항목입니다.", "가게 정보 미입력");
-      return;
-    }
-
-    if (!storeZonecode || !storeRoadAddress) {
-      AlertManager.error("가게 주소 정보를 입력해주세요.", "가게 주소 미입력");
-      return;
-    }
-
-    if (!bankName || !accountNumber || !accountHolder) {
-      AlertManager.error("정산 계좌 정보를 모두 입력해주세요.", "계좌 정보 미입력");
-      return;
-    }
-
     // 완성된 주소 조합 (개인 주소)
     const fullAddress = formatFullAddress(formData.roadAddress, formData.detailAddress);
-
+    
     // 사업자 주소 조합
     const fullBusinessAddress = formatFullAddress(
       formData.businessInfo.businessRoadAddress,
       formData.businessInfo.businessDetailAddress
     );
-
-    // 가게 주소 조합
-    const fullStoreAddress = formatFullAddress(
-      formData.storeInfo.storeRoadAddress,
-      formData.storeInfo.storeDetailAddress
-    );
-
-    // 1단계: 사용자 등록 데이터 준비
-    const userData = {
-      // 공통 정보
-      email: formData.email,
-      password: formData.password,
-      name: formData.name,
-      phone: formData.phone,
+    
+    // 데이터 통합
+    const submitData = {
+      ...formData,
       address: fullAddress,
-      termsAgreed: formData.termsAgreed,
-      privacyAgreed: formData.privacyAgreed,
-      marketingAgreed: formData.marketingAgreed,
-      // 역할 정보
-      role: "seller",
-      // 사업자 정보
-      isBusinessOwner: true,
       businessInfo: {
-        businessNumber: formData.businessInfo.businessNumber,
-        companyName: formData.businessInfo.companyName,
-        ceoName: formData.businessInfo.ceoName,
-        businessAddress: fullBusinessAddress,
-        businessType: formData.businessInfo.businessType,
-        businessCategory: formData.businessInfo.businessCategory,
-        openDate: formData.businessInfo.openDate
-      }
+        ...formData.businessInfo,
+        businessAddress: fullBusinessAddress
+      },
+      role: "seller" // 판매자 역할 지정
     };
 
-    console.log("판매자 기본 정보:", userData);
-
-    // 2단계: 가게 정보 준비
-    const storeData = {
-      storeName: formData.storeInfo.storeName,
-      storeDescription: formData.storeInfo.storeDescription,
-      storePhone: formData.storeInfo.storePhone,
-      storeAddress: fullStoreAddress,
-      categoryId: formData.storeInfo.categoryId,
-      businessHours: formData.storeInfo.businessHours,
-      deliveryInfo: formData.storeInfo.deliveryInfo,
-      bankName: formData.storeInfo.bankName,
-      accountNumber: formData.storeInfo.accountNumber,
-      accountHolder: formData.storeInfo.accountHolder
-    };
-
-    console.log("가게 정보:", storeData);
-
-    // 사용자 등록 요청
-    const registerResult = await register(userData);
-    if (!registerResult.success) {
-      AlertManager.error(registerResult.message, "회원가입 실패");
-      return;
+    console.log("판매자 회원가입 정보:", submitData);
+    const result = await userService.register(submitData); // 기본 register 함수 사용
+    
+    if (!result.success) {
+      AlertManager.error(result.message, "회원가입 실패");
+    } else {
+      AlertManager.success("판매자 회원가입이 완료되었습니다. 로그인 후 가게 정보를 등록해주세요.", "회원가입 성공");
+      setTimeout(() => {
+        router.push("../login");
+      }, 3000);
     }
-
-    // 가게 정보 등록 요청
-    const storeResult = await registerStore(registerResult.user.id, storeData);
-    if (!storeResult.success) {
-      AlertManager.error(storeResult.message, "가게 등록 실패");
-      // 여기서 사용자 등록은 이미 성공했으므로, 추가 처리가 필요할 수 있음
-      // 예: 사용자 등록 롤백 또는 나중에 가게 정보 다시 등록할 수 있도록 안내
-      return;
-    }
-
-    // 모든 과정 성공
-    AlertManager.success("판매자 회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.", "회원가입 성공");
-    setTimeout(() => {
-      router.push("../login");
-    }, 3000);
   };
 
   // 진행 상태 표시 (진행 바)
@@ -274,18 +178,12 @@ export default function SellerSignupPage() {
             </div>
             <span className="text-sm font-medium">사업자정보</span>
           </div>
-          <div className="flex-1 text-center">
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center mx-auto mb-1 ${currentStep >= 4 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>
-              4
-            </div>
-            <span className="text-sm font-medium">가게정보</span>
-          </div>
         </div>
         <div className="relative mt-1">
           <div className="h-1 w-full bg-gray-200 rounded">
             <div
               className="h-1 bg-blue-600 rounded transition-all duration-300"
-              style={{ width: `${(currentStep - 1) * 33.33}%` }}
+              style={{ width: `${(currentStep - 1) * 50}%` }}
             />
           </div>
         </div>
@@ -558,7 +456,7 @@ export default function SellerSignupPage() {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">가게 정보 입력</h2>
-
+        
         <div className="grid grid-cols-1 gap-4">
           <label className="block">
             <span className="text-gray-700">가게명 <span className="text-red-500">*</span></span>
@@ -718,7 +616,7 @@ export default function SellerSignupPage() {
             </label>
           </div>
         </div>
-
+        
         <p className="text-sm text-gray-500 mt-2">
           <span className="text-red-500">*</span> 표시는 필수 입력 항목입니다.
         </p>
@@ -766,8 +664,6 @@ export default function SellerSignupPage() {
         return renderStep2();
       case 3:
         return renderStep3();
-      case 4:
-        return renderStep4();
       default:
         return null;
     }
@@ -794,7 +690,7 @@ export default function SellerSignupPage() {
           </button>
         )}
 
-        {currentStep < 4 ? (
+        {currentStep < 3 ? (
           <button
             type="button"
             onClick={goToNextStep}

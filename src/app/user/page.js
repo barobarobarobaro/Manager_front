@@ -7,6 +7,8 @@ import StoreCard from "@/components/user/common/StoreCard";
 import OrderItem from "@/components/user/common/OrderItem";
 import userService from "@/services/userService";
 import { AlertManager } from "@/libs/AlertManager";
+import { useRouter } from "next/navigation";
+
 // 사용자 프로필 요약 컴포넌트
 const UserProfileSummary = ({ user }) => {
     if (!user) return null;
@@ -19,12 +21,15 @@ const UserProfileSummary = ({ user }) => {
                 </div>
                 <div>
                     <div className="font-medium">{user.name}님, 안녕하세요!</div>
-                    <div className="text-sm text-gray-500">{user.location} · 가입일: {new Date(user.joinDate).toLocaleDateString()}</div>
+                    <div className="text-sm text-gray-500">
+                        가입일: {new Date(user.joinDate || Date.now()).toLocaleDateString()}
+                    </div>
                 </div>
             </div>
         </section>
     );
 };
+
 // 메인 페이지 컴포넌트
 export default function Page() {
     // 기본 상태 관리
@@ -35,10 +40,16 @@ export default function Page() {
     const [products, setProducts] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const handleAddItem = (item) => {
-        userService.addToCart(item);
-    };
+    const router = useRouter();
 
+    const handleAddItem = (item) => {
+        try {
+            userService.addToCart(item);
+            AlertManager.success('장바구니에 상품이 추가되었습니다.');
+        } catch (error) {
+            AlertManager.error('상품 추가 중 오류가 발생했습니다.');
+        }
+    };
 
     // 페이지 로드 시 데이터 가져오기
     useEffect(() => {
@@ -54,11 +65,13 @@ export default function Page() {
                 const allStores = userService.getAllStores();
                 setStores(allStores);
 
-                // profile의 likedStores를 직접 사용
-                const likedStoresList = allStores.filter(store =>
-                    profile?.likedStores?.includes(store.id)
-                );
+                // 좋아요한 가게 목록 가져오기
+                const likedStoresList = userService.getLikedStores();
                 setLikedStores(likedStoresList);
+
+                // 최근 주문 내역 가져오기
+                const orders = userService.getRecentOrders();
+                setRecentOrders(orders);
 
                 // 기본적으로 첫 번째 좋아요한 가게 선택
                 if (likedStoresList.length > 0) {
@@ -66,7 +79,7 @@ export default function Page() {
                     setSelectedStoreId(firstLikedStoreId);
 
                     // 해당 가게의 상품 목록 가져오기
-                    const storeProducts = userService.getStoreProducts(firstLikedStoreId.toString());
+                    const storeProducts = userService.getStoreProducts(firstLikedStoreId);
                     setProducts(storeProducts);
                 }
 
@@ -83,14 +96,13 @@ export default function Page() {
     // 가게 선택 함수
     const selectStore = (storeId) => {
         setSelectedStoreId(storeId);
-        const storeProducts = userService.getStoreProducts(storeId.toString());
+        const storeProducts = userService.getStoreProducts(storeId);
         setProducts(storeProducts);
     };
+
     const viewProductDetail = (product) => {
-        //router.push(`/user/product/${product.id}`);
-        AlertManager.success(`상품 상세 페이지로 이동: ${product.name}`);//테스트 용 팝업 알람입니다. 
-        //상품 상세 페이지로 이동하는 코드를 작성하세요.
-    }
+        router.push(`/user/products/${product.id}`);
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -104,7 +116,7 @@ export default function Page() {
                         {/* 사용자 프로필 요약 */}
                         <UserProfileSummary user={userProfile} />
 
-                        {/* 가게 목록 섹션 */}
+                        {/* 좋아요한 가게 섹션 */}
                         <section className="mb-8">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-semibold">좋아요한 가게</h2>
@@ -125,6 +137,8 @@ export default function Page() {
                                 ))}
                             </div>
                         </section>
+
+                        
 
                         {/* 선택된 가게의 상품 섹션 */}
                         {selectedStoreId && (
@@ -186,7 +200,10 @@ export default function Page() {
                                     </svg>
                                     <h3 className="mt-2 text-sm font-medium text-gray-900">주문 내역이 없습니다</h3>
                                     <p className="mt-1 text-sm text-gray-500">새로운 상품을 구경해보세요!</p>
-                                    <button className="mt-4 px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-50">
+                                    <button 
+                                        onClick={() => router.push('/user/stores')} 
+                                        className="mt-4 px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-50"
+                                    >
                                         상품 둘러보기
                                     </button>
                                 </div>
@@ -211,10 +228,33 @@ export default function Page() {
                                 </div>
                             )}
                         </section>
+                        {/* 전체 가게 목록 섹션 */}
+                        <section className="mb-8">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-lg font-semibold">전체 가게 목록</h2>
+                                <Link 
+                                    href="/user/stores" 
+                                    className="text-sm text-green-600 hover:text-green-700"
+                                >
+                                    전체 보기
+                                </Link>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {stores.slice(0, 5).map((store) => (
+                                    <StoreCard
+                                        key={store.id}
+                                        store={store}
+                                        isLiked={likedStores.some(liked => liked.id === store.id)}
+                                        onSelect={selectStore}
+                                        isSelected={selectedStoreId === store.id}
+                                    />
+                                ))}
+                            </div>
+                        </section>
                     </>
                 )}
             </main>
-
         </div>
     );
 }

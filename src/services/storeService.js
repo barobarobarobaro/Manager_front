@@ -1,4 +1,4 @@
-import mockData from '@/datas/mockData/mockUser.json';
+import mockData from '@/datas/mockData/index';
 
 // 모든 가게 목록 가져오기
 const getAllStores = () => {

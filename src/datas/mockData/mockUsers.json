@@ -1,0 +1,40 @@
+{
+    "users": [
+        {
+          "id": "1",
+          "email": "user1@example.com",
+          "password": "password123",
+          "name": "김구매자",
+          "profileImage": null,
+          "joinDate": "2024-01-15",
+          "phone": "010-1234-5678"
+        },
+        {
+          "id": "2",
+          "email": "user2@example.com",
+          "password": "password456",
+          "name": "이구매자",
+          "profileImage": null,
+          "joinDate": "2024-01-18",
+          "phone": "010-2345-6789"
+        },
+        {
+          "id": "3",
+          "email": "seller1@example.com",
+          "password": "seller123",
+          "name": "박판매자",
+          "profileImage": "/images/profiles/seller1.jpg",
+          "joinDate": "2023-12-10",
+          "phone": "010-3456-7890"
+        },
+        {
+          "id": "4",
+          "email": "seller2@example.com",
+          "password": "seller456",
+          "name": "최판매자",
+          "profileImage": "/images/profiles/seller2.jpg",
+          "joinDate": "2023-11-05",
+          "phone": "010-4567-8901"
+        }
+      ]
+}

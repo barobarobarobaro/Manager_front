@@ -1,0 +1,60 @@
+{
+    "mockBusinessInfo": {
+        "2": {
+            "business_number": "123-45-67890",
+            "company_name": "푸른들 농장",
+            "ceo_name": "이농부",
+            "open_date": "2020-01-01",
+            "business_type": "농업",
+            "business_category": "농산물 재배 및 판매",
+            "business_address": "경기도 이천시 농부로 456 이천 농장",
+            "store_ids": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+            ]
+        },
+        "4": {
+            "business_number": "234-56-78901",
+            "company_name": "신선마켓",
+            "ceo_name": "정판매",
+            "open_date": "2019-03-15",
+            "business_type": "도소매업",
+            "business_category": "식품 유통",
+            "business_address": "서울시 송파구 판매로 123",
+            "store_ids": []
+        },
+        "5": {
+            "business_number": "345-67-89012",
+            "company_name": "제주 특산품",
+            "ceo_name": "김제주",
+            "open_date": "2021-05-10",
+            "business_type": "도소매업",
+            "business_category": "지역 특산품 판매",
+            "business_address": "제주시 특산로 789",
+            "store_ids": []
+        },
+        "6": {
+            "business_number": "456-78-90123",
+            "company_name": "건강식품 연구소",
+            "ceo_name": "최건강",
+            "open_date": "2018-09-22",
+            "business_type": "제조업",
+            "business_category": "건강식품 제조 및 판매",
+            "business_address": "경기도 성남시 건강로 456",
+            "store_ids": []
+        },
+        "7": {
+            "business_number": "567-89-01234",
+            "company_name": "친환경 농산물",
+            "ceo_name": "박환경",
+            "open_date": "2022-02-28",
+            "business_type": "농업",
+            "business_category": "유기농 작물 재배",
+            "business_address": "전라남도 나주시 친환경로 567",
+            "store_ids": []
+        }
+    }
+}

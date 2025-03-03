@@ -1,0 +1,45 @@
+{
+    "seller_profiles": {
+        "3": {
+            "businessInfo": {
+                "businessNumber": "123-45-67890",
+                "companyName": "푸른들 농장",
+                "ceoName": "박판매자",
+                "businessAddress": "경기도 이천시 농부로 456",
+                "businessType": "농업",
+                "businessCategory": "농산물 재배 및 판매",
+                "openDate": "2020-01-01"
+            },
+            "stores": [
+                "1",
+                "2"
+            ],
+            "bankInfo": {
+                "bankName": "농협은행",
+                "accountNumber": "123-4567-8901-23",
+                "accountHolder": "박판매자"
+            }
+        },
+        "4": {
+            "businessInfo": {
+                "businessNumber": "234-56-78901",
+                "companyName": "신선마켓",
+                "ceoName": "최판매자",
+                "businessAddress": "서울시 송파구 송파대로 123",
+                "businessType": "도소매업",
+                "businessCategory": "식품 유통",
+                "openDate": "2019-03-15"
+            },
+            "stores": [
+                "3",
+                "4",
+                "5"
+            ],
+            "bankInfo": {
+                "bankName": "우리은행",
+                "accountNumber": "1002-123-456789",
+                "accountHolder": "신선마켓"
+            }
+        }
+    }
+}

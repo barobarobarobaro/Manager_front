@@ -1,7 +1,8 @@
 'use client';
 import { AlertManager } from '@/libs/AlertManager';
+import userService from '@/services/userService';
 import React, { useState, useEffect } from 'react';
-
+import ImageOrIcon from '@/components/common/ImageOrIcon';
 export default function ProductOptionModal({
   isOpen,
   onClose,
@@ -9,7 +10,7 @@ export default function ProductOptionModal({
   onAddToCart
 }) {
   const [quantity, setQuantity] = useState(1);
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState(null);
 
   // 모달이 열릴 때마다 상태 초기화
   useEffect(() => {
@@ -17,25 +18,34 @@ export default function ProductOptionModal({
       setQuantity(1);
       // 상품에 옵션이 있으면 첫 번째 옵션을 기본값으로 설정
       if (product?.options?.length > 0) {
-        setSelectedOption(product.options[0].value);
+        setSelectedOption(product.options[0]);
       } else {
-        setSelectedOption('');
+        setSelectedOption(null);
       }
     }
   }, [isOpen, product]);
 
   // 장바구니에 추가하는 함수
   const handleAddToCart = () => {
-    // 상품, 수량, 선택된 옵션을 포함한 객체를 만들어 전달
-    onAddToCart({
-      product,
-      quantity,
-      option: selectedOption
-    });
-    AlertManager.info('장바구니에 상품이 추가되었습니다.');
-    console.log('장바구니 아이템:', localStorage.getItem('cart_items'));
-    // 모달 닫기
-    onClose();
+    try {
+      // 상품, 수량, 선택된 옵션을 포함한 객체를 만들어 전달
+      const cartItem = {
+        product,
+        quantity,
+        option: selectedOption
+      };
+
+      // userService의 addToCart 메서드 사용
+      userService.addToCart(cartItem);
+
+      AlertManager.success('장바구니에 상품이 추가되었습니다.');
+
+      // 모달 닫기
+      onClose();
+    } catch (error) {
+      console.error('장바구니 추가 중 오류:', error);
+      AlertManager.error('장바구니 추가에 실패했습니다.');
+    }
   };
 
   // 모달 외부 클릭 시 닫기
@@ -49,6 +59,7 @@ export default function ProductOptionModal({
   const increaseQuantity = () => {
     // 재고 제한이 있는 경우 체크
     if (product.stock && quantity >= product.stock) {
+      AlertManager.info(`최대 구매 가능 수량은 ${product.stock}개입니다.`);
       return;
     }
     setQuantity(prev => prev + 1);
@@ -64,6 +75,18 @@ export default function ProductOptionModal({
   // 모달이 닫혀있으면 아무것도 렌더링하지 않음
   if (!isOpen) return null;
 
+  // 옵션 선택 핸들러
+  const handleOptionChange = (option) => {
+    setSelectedOption(option);
+  };
+
+  // 총 금액 계산 (옵션 추가 가격 포함)
+  const calculateTotalPrice = () => {
+    const basePrice = product.price || 0;
+    const optionPrice = selectedOption?.price || 0;
+    return (basePrice + optionPrice) * quantity;
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50 transition-opacity"
@@ -73,19 +96,14 @@ export default function ProductOptionModal({
         {/* 상품 정보 */}
         <div className="flex items-start mb-4">
           <div className="w-16 h-16 bg-gray-200 rounded-md overflow-hidden mr-3">
-            {product.image ? (
-              <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-              </div>
-            )}
+            <ImageOrIcon
+              src={product.images[0]}
+              alt={product.name}
+            />
           </div>
           <div className="flex-1">
             <h3 className="font-medium">{product.name}</h3>
-            <p className="text-sm text-gray-500">{product.category}</p>
+            <p className="text-sm text-gray-500">{product.category || '상품'}</p>
             <p className="font-bold mt-1">{product.price?.toLocaleString() || '0'}원</p>
           </div>
           <button
@@ -102,17 +120,27 @@ export default function ProductOptionModal({
         {product.options && product.options.length > 0 && (
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">옵션 선택</label>
-            <select
-              value={selectedOption}
-              onChange={(e) => setSelectedOption(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            >
+            <div className="grid grid-cols-2 gap-2">
               {product.options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
+                <button
+                  key={option.id}
+                  onClick={() => handleOptionChange(option)}
+                  className={`
+                    w-full p-2 border rounded-md transition-colors
+                    ${selectedOption?.id === option.id
+                      ? 'border-green-600 bg-green-50 text-green-700'
+                      : 'border-gray-300 hover:bg-gray-100'}
+                  `}
+                >
+                  <div className="flex justify-between items-center">
+                    <span>{option.name}</span>
+                    <span className="text-sm text-gray-500">
+                      {option.price > 0 ? `+${option.price.toLocaleString()}원` : ''}
+                    </span>
+                  </div>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
         )}
 
@@ -147,7 +175,7 @@ export default function ProductOptionModal({
         <div className="flex justify-between items-center mb-4 pt-2 border-t">
           <span className="text-gray-700">총 상품 금액</span>
           <span className="text-lg font-bold text-green-600">
-            {((product.price || 0) * quantity).toLocaleString()}원
+            {calculateTotalPrice().toLocaleString()}원
           </span>
         </div>
 

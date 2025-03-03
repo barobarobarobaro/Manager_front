@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import userService from "@/services/userService";
-import ImageOrIcon from '@/components/common/ImageOrIcon'; // 이미지 컴포넌트 (선택적)
-import { useAlert } from '@/libs/AlertManager'; // 알림 훅
+import ImageOrIcon from '@/components/common/ImageOrIcon';
+import { AlertManager } from '@/libs/AlertManager';
 
 // 장바구니 아이템 컴포넌트
 const CartItem = ({ item, onUpdateQuantity, onRemove, selected, onToggleSelect }) => {
@@ -20,12 +20,10 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, selected, onToggleSelect }
                 />
             </div>
             <div className="w-20 h-20 rounded-md overflow-hidden mr-4 bg-gray-100">
-                {/* 이미지 서비스 사용 (또는 기본 이미지와 onError 사용) */}
                 <ImageOrIcon
-                    src={item.product.image}
+                    src={item.product.images?.[0]}
                     type="product"
                     alt={item.product.name}
-                    className="w-full h-full"
                     iconColor="#9CA3AF"
                 />
             </div>
@@ -34,7 +32,12 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, selected, onToggleSelect }
                 <div className="flex justify-between">
                     <div>
                         <h3 className="font-medium">{item.product.name}</h3>
-                        <p className="text-sm text-gray-500">{item.product.storeName}</p>
+                        {item.option && (
+                            <p className="text-xs text-gray-500">
+                                옵션: {item.option.name} 
+                                {item.option.price > 0 && ` (+${item.option.price.toLocaleString()}원)`}
+                            </p>
+                        )}
                     </div>
                     <button
                         onClick={() => onRemove(item.id)}
@@ -64,8 +67,15 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, selected, onToggleSelect }
                         </button>
                     </div>
                     <div className="text-right">
-                        <div className="font-semibold">{(item.product.price * item.quantity).toLocaleString()}원</div>
-                        <div className="text-xs text-gray-500">개당 {item.product.price.toLocaleString()}원</div>
+                        <div className="font-semibold">
+                            {(
+                                (item.product.price + (item.option?.price || 0)) * 
+                                item.quantity
+                            ).toLocaleString()}원
+                        </div>
+                        <div className="text-xs text-gray-500">
+                            개당 {(item.product.price + (item.option?.price || 0)).toLocaleString()}원
+                        </div>
                     </div>
                 </div>
             </div>
@@ -73,38 +83,91 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, selected, onToggleSelect }
     );
 };
 
+// 가게별 장바구니 그룹 생성 함수
+const groupCartItemsByStore = (cartItems) => {
+    const storeGroups = {};
+    const stores = userService.getAllStores();
+
+    cartItems.forEach(item => {
+        // 해당 상품의 가게 찾기
+        const store = stores.find(s => 
+            userService.getStoreProducts(s.id).some(p => p.id === item.product.id)
+        );
+
+        if (store) {
+            if (!storeGroups[store.id]) {
+                storeGroups[store.id] = {
+                    store,
+                    items: [],
+                    totalPrice: 0,
+                    shippingFee: store.delivery_fee || 3000,
+                    minOrderAmount: store.min_order_amount || 50000
+                };
+            }
+            
+            const storeGroup = storeGroups[store.id];
+            storeGroup.items.push(item);
+            storeGroup.totalPrice += (item.product.price + (item.option?.price || 0)) * item.quantity;
+        }
+    });
+
+    // 배송비 계산
+    Object.values(storeGroups).forEach(group => {
+        group.freeShippingAvailable = group.totalPrice >= group.minOrderAmount;
+        group.finalShippingFee = group.freeShippingAvailable ? 0 : group.shippingFee;
+    });
+
+    return Object.values(storeGroups);
+};
+
 // 주문 요약 컴포넌트
-const OrderSummary = ({ cartItems, onCheckout }) => {
+const OrderSummary = ({ storeGroups, onCheckout }) => {
     // 총 상품 금액 계산
-    const totalPrice = cartItems.reduce(
-        (total, item) => total + (item.product.price * item.quantity),
-        0
+    const totalProductPrice = storeGroups.reduce(
+        (total, group) => total + group.totalPrice, 0
     );
 
-    // 배송비 (5만원 이상 무료, 그 외 3,000원)
-    const shippingFee = totalPrice >= 50000 || totalPrice == 0 ? 0 : 3000;
+    // 총 배송비 계산
+    const totalShippingFee = storeGroups.reduce(
+        (total, group) => total + group.finalShippingFee, 0
+    );
 
     // 최종 결제 금액
-    const finalAmount = totalPrice + shippingFee;
+    const finalAmount = totalProductPrice + totalShippingFee;
 
     return (
         <div className="bg-white rounded-lg p-6 shadow-sm sticky top-4">
             <h2 className="text-lg font-semibold mb-4">주문 요약</h2>
 
+            {storeGroups.map(group => (
+                <div key={group.store.id} className="mb-4 pb-4 border-b">
+                    <div className="flex justify-between mb-2">
+                        <span className="font-medium">{group.store.name}</span>
+                        <span>{group.totalPrice.toLocaleString()}원</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-600">
+                        <span>배송비</span>
+                        <span>
+                            {group.freeShippingAvailable 
+                                ? '무료' 
+                                : `${group.finalShippingFee.toLocaleString()}원`}
+                        </span>
+                    </div>
+                    <div className="text-xs text-gray-500 text-right mt-1">
+                            {group.minOrderAmount.toLocaleString()}원 이상 주문 시 무료 배송
+                        </div>
+                </div>
+            ))}
+
             <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                     <span className="text-gray-600">총 상품 금액</span>
-                    <span>{totalPrice.toLocaleString()}원</span>
+                    <span>{totalProductPrice.toLocaleString()}원</span>
                 </div>
                 <div className="flex justify-between">
-                    <span className="text-gray-600">배송비</span>
-                    <span>{shippingFee.toLocaleString()}원</span>
+                    <span className="text-gray-600">총 배송비</span>
+                    <span>{totalShippingFee.toLocaleString()}원</span>
                 </div>
-                {shippingFee > 0 && (
-                    <div className="text-xs text-gray-500 text-right">
-                        5만원 이상 주문 시 무료 배송
-                    </div>
-                )}
                 <div className="border-t pt-3 flex justify-between font-semibold">
                     <span>결제 금액</span>
                     <span className="text-green-600">{finalAmount.toLocaleString()}원</span>
@@ -114,11 +177,11 @@ const OrderSummary = ({ cartItems, onCheckout }) => {
             <button
                 onClick={onCheckout}
                 className="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                disabled={cartItems.length === 0 || totalPrice === 0}
+                disabled={storeGroups.length === 0 || finalAmount === 0}
             >
-                {cartItems.length === 0
+                {storeGroups.length === 0
                     ? '장바구니가 비어있습니다'
-                    : totalPrice === 0
+                    : finalAmount === 0
                         ? '주문 가능한 상품이 없습니다'
                         : '주문하기'}
             </button>
@@ -138,8 +201,6 @@ export default function CartPage() {
     const [loading, setLoading] = useState(true);
     const [selectedItems, setSelectedItems] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
-
-    const { showConfirm } = useAlert();
 
     // 장바구니 데이터 가져오기
     const fetchCartData = useCallback(() => {
@@ -195,17 +256,9 @@ export default function CartPage() {
         try {
             // userService를 사용하여 장바구니 아이템 수량 업데이트
             userService.updateCartItemQuantity(itemId, newQuantity);
-
-            // 로컬 상태도 업데이트 (이벤트가 제대로 작동하지 않을 경우를 대비)
-            setCartItems(prevItems =>
-                prevItems.map(item =>
-                    item.id === itemId
-                        ? { ...item, quantity: newQuantity }
-                        : item
-                )
-            );
         } catch (error) {
             console.error("수량 업데이트 실패:", error);
+            AlertManager.error("수량 업데이트에 실패했습니다.");
         }
     };
 
@@ -217,11 +270,9 @@ export default function CartPage() {
 
             // 선택된 아이템 목록에서도 제거
             setSelectedItems(prev => prev.filter(id => id !== itemId));
-
-            // 로컬 상태도 업데이트 (이벤트가 제대로 작동하지 않을 경우를 대비)
-            setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
         } catch (error) {
             console.error("아이템 제거 실패:", error);
+            AlertManager.error("상품 제거에 실패했습니다.");
         }
     };
 
@@ -257,16 +308,7 @@ export default function CartPage() {
     };
 
     // 전체 삭제 함수
-    const clearCart = async () => {
-        const confirmed = await showConfirm(
-            '장바구니의 모든 상품을 삭제하시겠습니까?',
-            '장바구니 비우기',
-            {
-                confirmText: '삭제',
-                cancelText: '취소'
-            }
-        );
-        if (!confirmed) return;
+    const clearCart = () => {
         try {
             // userService를 사용하여 장바구니 비우기
             userService.clearCart();
@@ -275,8 +317,11 @@ export default function CartPage() {
             setCartItems([]);
             setSelectedItems([]);
             setSelectAll(false);
+
+            AlertManager.success("장바구니가 비워졌습니다.");
         } catch (error) {
             console.error("장바구니 비우기 실패:", error);
+            AlertManager.error("장바구니 비우기에 실패했습니다.");
         }
     };
 
@@ -284,7 +329,7 @@ export default function CartPage() {
     const proceedToCheckout = () => {
         // 선택된 아이템이 없으면 알림 표시
         if (selectedItems.length === 0) {
-            alert("주문할 상품을 선택해주세요.");
+            AlertManager.error("주문할 상품을 선택해주세요.");
             return;
         }
 
@@ -302,10 +347,13 @@ export default function CartPage() {
         router.push('/user/checkout');
     };
 
+    // 가게별 그룹화된 장바구니 아이템
+    const storeGroups = groupCartItemsByStore(
+        cartItems.filter(item => selectedItems.includes(item.id))
+    );
+
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* 헤더는 레이아웃에서 처리 */}
-
             <main className="container mx-auto px-4 py-8">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold">장바구니</h1>
@@ -338,30 +386,40 @@ export default function CartPage() {
                                     </Link>
                                 </div>
                             ) : (
-                                <div className="bg-white rounded-lg p-6 shadow-sm">
-                                    <div className="border-b pb-2 mb-2 flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            id="selectAll"
-                                            checked={selectAll}
-                                            onChange={toggleSelectAll}
-                                            className="mr-2"
-                                        />
-                                        <label htmlFor="selectAll" className="text-sm">
-                                            전체 선택 ({selectedItems.length}/{cartItems.length}개)
-                                        </label>
-                                    </div>
-
-                                    <div className="divide-y">
-                                        {cartItems.map(item => (
-                                            <CartItem
-                                                key={item.id}
-                                                item={item}
-                                                onUpdateQuantity={updateQuantity}
-                                                onRemove={removeItem}
-                                                selected={selectedItems.includes(item.id)}
-                                                onToggleSelect={() => toggleSelectItem(item.id)}
+                                <div className="space-y-4">
+                                    <div className="bg-white rounded-lg p-6 shadow-sm">
+                                        <div className="border-b pb-2 mb-2 flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                id="selectAll"
+                                                checked={selectAll}
+                                                onChange={toggleSelectAll}
+                                                className="mr-2"
                                             />
+                                            <label htmlFor="selectAll" className="text-sm">
+                                                전체 선택 ({selectedItems.length}/{cartItems.length}개)
+                                            </label>
+                                        </div>
+
+                                        {storeGroups.map(group => (
+                                            <div 
+                                                key={group.store.id} 
+                                                className="mb-4 pb-4 border-b last:border-b-0"
+                                            >
+                                                <div className="font-semibold mb-2">
+                                                    {group.store.name}
+                                                </div>
+                                                {group.items.map(item => (
+                                                    <CartItem
+                                                        key={item.id}
+                                                        item={item}
+                                                        onUpdateQuantity={updateQuantity}
+                                                        onRemove={removeItem}
+                                                        selected={selectedItems.includes(item.id)}
+                                                        onToggleSelect={() => toggleSelectItem(item.id)}
+                                                    />
+                                                ))}
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
@@ -370,15 +428,13 @@ export default function CartPage() {
 
                         <div className="lg:col-span-1">
                             <OrderSummary
-                                cartItems={cartItems.filter(item => selectedItems.includes(item.id))}
+                                storeGroups={storeGroups}
                                 onCheckout={proceedToCheckout}
                             />
                         </div>
                     </div>
                 )}
             </main>
-
-            {/* 푸터는 레이아웃에서 처리 */}
         </div>
     );
 }

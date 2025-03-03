@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import React, { useRef } from "react";
+import ImageOrIcon from "./common/ImageOrIcon";
 
 export default function StockStatusWidget({ title, items }) {
     const scrollContainerRef = useRef(null);
@@ -44,10 +45,12 @@ export default function StockStatusWidget({ title, items }) {
                                 key={index} 
                                 className="bg-gray-100 p-4 rounded-lg shadow-md flex-shrink-0 w-40 sm:w-48"
                             >
-                                <img 
-                                    src={item.image || "https://source.unsplash.com/150x150/?fruit"} 
-                                    alt={item.name} 
-                                    className="w-full h-24 sm:h-32 object-cover rounded"
+                                
+                                <ImageOrIcon
+                                    src={item.icon}
+                                    alt={item.name}
+                                    className=" mx-auto mt-2"
+                                    iconColor="#999"
                                 />
                                 <h3 className="text-lg font-medium mt-2 text-center">{item.name}</h3>
                                 <p className="text-gray-700 text-center">재고: {item.stock}개</p>

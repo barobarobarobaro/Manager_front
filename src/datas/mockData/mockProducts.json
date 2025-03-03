@@ -1,0 +1,510 @@
+{
+    "products": {
+        "1": [
+            {
+                "id": "101",
+                "store_id": "1",
+                "name": "유기농 햇감자",
+                "price": 12000,
+                "discount_price": null,
+                "unit": "3kg",
+                "category": "채소",
+                "category_id": "1",
+                "stock": 50,
+                "isFresh": true,
+                "description": "강원도 평창의 맑은 공기에서 자란 유기농 햇감자입니다. 식감이 좋고 담백한 맛이 일품입니다.",
+                "images": [
+                    "/images/products/potato1.jpg",
+                    "/images/products/potato2.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "소포장(1kg)",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "대포장(5kg)",
+                        "price": 5000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-01-15T10:00:00Z",
+                "nutrition": {
+                    "calories": 77,
+                    "protein": "2g",
+                    "carbs": "17g",
+                    "fat": "0.1g"
+                }
+            },
+            {
+                "id": "102",
+                "store_id": "1",
+                "name": "유기농 찰토마토",
+                "price": 15000,
+                "discount_price": 13500,
+                "unit": "2kg",
+                "category": "과일",
+                "category_id": "2",
+                "stock": 30,
+                "isFresh": true,
+                "description": "당도 높은 친환경 토마토입니다. 아침 식사나 샐러드에 활용하기 좋습니다.",
+                "images": [
+                    "/images/products/tomato1.jpg",
+                    "/images/products/tomato2.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "일반 포장",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "선물용 포장",
+                        "price": 2000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-02-01T09:30:00Z",
+                "nutrition": {
+                    "calories": 18,
+                    "protein": "0.9g",
+                    "carbs": "3.9g",
+                    "fat": "0.2g"
+                }
+            },
+            {
+                "id": "103",
+                "store_id": "1",
+                "name": "국내산 꿀고구마",
+                "price": 18000,
+                "discount_price": null,
+                "unit": "5kg",
+                "category": "채소",
+                "category_id": "1",
+                "stock": 25,
+                "isFresh": false,
+                "description": "국내산 꿀고구마입니다. 달콤한 맛이 특징이며 찐 고구마나 군고구마로 드시면 더욱 맛있습니다.",
+                "images": [
+                    "/images/products/sweetpotato.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "일반",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "상품 등급",
+                        "price": 3000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-01-20T14:15:00Z",
+                "nutrition": {
+                    "calories": 86,
+                    "protein": "1.6g",
+                    "carbs": "20g",
+                    "fat": "0.1g"
+                }
+            }
+        ],
+        "2": [
+            {
+                "id": "201",
+                "store_id": "2",
+                "name": "갓뽑은 고수 1KG",
+                "price": 13000,
+                "discount_price": null,
+                "unit": "1kg",
+                "category": "야채",
+                "category_id": "1",
+                "stock": 40,
+                "isFresh": true,
+                "description": "식당에서 많이 쓰이는 고수입니다. 갓 수확해 더욱 신선합니다.",
+                "images": [
+                    "/images/products/coriander.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "실속형",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "프리미엄",
+                        "price": 2000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-02-10T08:45:00Z",
+                "nutrition": {
+                    "calories": 23,
+                    "protein": "2.1g",
+                    "carbs": "3.7g",
+                    "fat": "0.5g"
+                }
+            },
+            {
+                "id": "202",
+                "store_id": "2",
+                "name": "미분당 포장 봉투 1000개입",
+                "price": 12000,
+                "discount_price": 10800,
+                "unit": "1박스",
+                "category": "포장재",
+                "category_id": "8",
+                "stock": 20,
+                "isFresh": false,
+                "description": "미분당 로고가 인쇄된 전용 포장 봉투입니다. 식품 포장에 적합한 친환경 소재로 제작되었습니다.",
+                "images": [
+                    "/images/products/packaging.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "소형",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "중형",
+                        "price": 2000
+                    },
+                    {
+                        "id": "3",
+                        "name": "대형",
+                        "price": 4000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-01-05T11:20:00Z",
+                "nutrition": null
+            }
+        ],
+        "3": [
+            {
+                "id": "301",
+                "store_id": "3",
+                "name": "전통 된장",
+                "price": 15000,
+                "discount_price": null,
+                "unit": "1kg",
+                "category": "장류",
+                "category_id": "5",
+                "stock": 15,
+                "isFresh": false,
+                "description": "100% 국내산 콩으로 만든 전통 방식의 된장입니다. 3년 이상 숙성시켜 깊은 맛을 자랑합니다.",
+                "images": [
+                    "/images/products/doenjang.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "일반",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "선물포장",
+                        "price": 3000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2023-12-10T09:15:00Z",
+                "nutrition": {
+                    "calories": 198,
+                    "protein": "12g",
+                    "carbs": "12g",
+                    "fat": "10g"
+                }
+            },
+            {
+                "id": "302",
+                "store_id": "3",
+                "name": "전통 고추장",
+                "price": 16000,
+                "discount_price": null,
+                "unit": "500g",
+                "category": "장류",
+                "category_id": "5",
+                "stock": 20,
+                "isFresh": false,
+                "description": "국내산 고춧가루와 찹쌀로 만든 전통 고추장입니다. 매콤한 맛과 감칠맛이 일품입니다.",
+                "images": [
+                    "/images/products/gochujang.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "보통 맵기",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "매운맛",
+                        "price": 1000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2023-12-15T10:30:00Z",
+                "nutrition": {
+                    "calories": 217,
+                    "protein": "6g",
+                    "carbs": "44g",
+                    "fat": "1g"
+                }
+            },
+            {
+                "id": "303",
+                "store_id": "3",
+                "name": "묵은지 김치",
+                "price": 18000,
+                "discount_price": 16200,
+                "unit": "2kg",
+                "category": "김치",
+                "category_id": "6",
+                "stock": 10,
+                "isFresh": true,
+                "description": "1년 이상 숙성시킨 묵은지입니다. 구수한 맛이 일품이며 김치찌개에 활용하면 깊은 맛을 냅니다.",
+                "images": [
+                    "/images/products/kimchi.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "기본",
+                        "price": 0
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-01-20T15:40:00Z",
+                "nutrition": {
+                    "calories": 15,
+                    "protein": "1g",
+                    "carbs": "2g",
+                    "fat": "0.2g"
+                }
+            }
+        ],
+        "4": [
+            {
+                "id": "401",
+                "store_id": "4",
+                "name": "국내산 유기농 현미",
+                "price": 35000,
+                "discount_price": null,
+                "unit": "10kg",
+                "category": "곡물",
+                "category_id": "3",
+                "stock": 50,
+                "isFresh": false,
+                "description": "무농약으로 재배한 국내산 유기농 현미입니다. 영양가가 풍부하고 건강에 좋습니다.",
+                "images": [
+                    "/images/products/brownrice.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "일반",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "도정 서비스",
+                        "price": 2000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-01-10T09:00:00Z",
+                "nutrition": {
+                    "calories": 362,
+                    "protein": "7.5g",
+                    "carbs": "76g",
+                    "fat": "2.7g"
+                }
+            },
+            {
+                "id": "402",
+                "store_id": "4",
+                "name": "친환경 상추",
+                "price": 6000,
+                "discount_price": 5400,
+                "unit": "200g",
+                "category": "채소",
+                "category_id": "1",
+                "stock": 30,
+                "isFresh": true,
+                "description": "무농약으로 재배한 싱싱한 상추입니다. 쌈채소나 샐러드용으로 적합합니다.",
+                "images": [
+                    "/images/products/lettuce.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "기본",
+                        "price": 0
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-02-15T08:20:00Z",
+                "nutrition": {
+                    "calories": 15,
+                    "protein": "1.4g",
+                    "carbs": "2.9g",
+                    "fat": "0.2g"
+                }
+            },
+            {
+                "id": "403",
+                "store_id": "4",
+                "name": "유기농 혼합 견과류",
+                "price": 25000,
+                "discount_price": null,
+                "unit": "500g",
+                "category": "견과류",
+                "category_id": "7",
+                "stock": 25,
+                "isFresh": false,
+                "description": "아몬드, 호두, 캐슈넛, 해바라기씨 등이 혼합된 유기농 견과류입니다. 간식이나 샐러드 토핑으로 좋습니다.",
+                "images": [
+                    "/images/products/mixednuts.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "기본",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "선물포장",
+                        "price": 3000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-01-25T13:30:00Z",
+                "nutrition": {
+                    "calories": 607,
+                    "protein": "20g",
+                    "carbs": "20g",
+                    "fat": "52g"
+                }
+            }
+        ],
+        "5": [
+            {
+                "id": "501",
+                "store_id": "5",
+                "name": "제주 감귤",
+                "price": 15000,
+                "discount_price": 12000,
+                "unit": "3kg",
+                "category": "과일",
+                "category_id": "2",
+                "stock": 45,
+                "isFresh": true,
+                "description": "제주도의 맑은 공기와 풍부한 햇살을 받고 자란 제철 감귤입니다. 새콤달콤한 맛이 일품입니다.",
+                "images": [
+                    "/images/products/tangerine.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "일반",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "선물포장",
+                        "price": 3000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-02-05T09:45:00Z",
+                "nutrition": {
+                    "calories": 53,
+                    "protein": "0.8g",
+                    "carbs": "13.3g",
+                    "fat": "0.2g"
+                }
+            },
+            {
+                "id": "502",
+                "store_id": "5",
+                "name": "한라봉",
+                "price": 18000,
+                "discount_price": null,
+                "unit": "2kg",
+                "category": "과일",
+                "category_id": "2",
+                "stock": 25,
+                "isFresh": true,
+                "description": "제주도에서 재배된 한라봉입니다. 과즙이 풍부하고 당도가 높아 선물용으로도 인기가 많습니다.",
+                "images": [
+                    "/images/products/hallabong.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "일반",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "고급 선물세트",
+                        "price": 5000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-01-15T11:20:00Z",
+                "nutrition": {
+                    "calories": 60,
+                    "protein": "1g",
+                    "carbs": "15g",
+                    "fat": "0.1g"
+                }
+            },
+            {
+                "id": "503",
+                "store_id": "5",
+                "name": "제주 흑돼지 삼겹살",
+                "price": 32000,
+                "discount_price": 28800,
+                "unit": "1kg",
+                "category": "육류",
+                "category_id": "9",
+                "stock": 15,
+                "isFresh": true,
+                "description": "제주도에서 키운 흑돼지의 삼겹살입니다. 담백하고 고소한 맛이 일품입니다.",
+                "images": [
+                    "/images/products/pork.jpg"
+                ],
+                "options": [
+                    {
+                        "id": "1",
+                        "name": "냉장",
+                        "price": 0
+                    },
+                    {
+                        "id": "2",
+                        "name": "냉동",
+                        "price": -2000
+                    }
+                ],
+                "status": "active",
+                "created_at": "2024-02-10T10:15:00Z",
+                "nutrition": {
+                    "calories": 242,
+                    "protein": "24g",
+                    "carbs": "0g",
+                    "fat": "16g"
+                }
+            }
+        ]
+    }
+}

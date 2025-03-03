@@ -1,11 +1,9 @@
 'use client';
 import React, { useState } from 'react';
 import ProductOptionModal from '@/components/user/common/ProductOptionModal';
-
 export default function ProductCard({ product, onAddToCart, onViewDetail }) {
   // 모달 상태 관리
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
   // 상품 데이터가 없는 경우 예외 처리
   if (!product) {
     return null;
@@ -20,7 +18,6 @@ export default function ProductCard({ product, onAddToCart, onViewDetail }) {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-
   // 장바구니에 추가 처리
   const handleAddToCart = (cartItem) => {
     if (onAddToCart) {
