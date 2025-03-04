@@ -62,7 +62,7 @@ const PaymentCompletePage = () => {
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h1 className="text-xl font-bold mb-2">오류가 발생했습니다</h1>
           <p className="mb-4">{error}</p>
-          <Link href="/" className="inline-block bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">
+          <Link href="/user" className="inline-block bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">
             홈으로 돌아가기
           </Link>
         </div>

@@ -63,7 +63,7 @@ const NoticeSection = ({ notices }) => {
 };
 
 // 가게 소개 컴포넌트
-const StoreInfo = ({ store }) => {
+const StoreInfo = ({ store, isLiked, onToggleLike, onInquiry }) => {
   // 프로필 이미지 렌더링 함수
   const renderProfileImage = () => {
     // 가게 프로필 이미지 표시
@@ -123,13 +123,23 @@ const StoreInfo = ({ store }) => {
             </div>
           </div>
           <div className="flex mt-4 sm:mt-0 space-x-2">
-            <button className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <button 
+              className={`px-4 py-2 border rounded text-sm flex items-center ${
+                isLiked 
+                  ? "border-red-300 text-red-500 bg-red-50 hover:bg-red-100" 
+                  : "border-gray-300 hover:bg-gray-50"
+              }`}
+              onClick={onToggleLike}
+            >
+              <svg className="w-4 h-4 mr-1" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
               </svg>
-              찜하기
+              {isLiked ? '찜함' : '찜하기'}
             </button>
-            <button className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 flex items-center">
+            <button 
+              className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 flex items-center"
+              onClick={onInquiry}
+            >
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
               </svg>
@@ -160,11 +170,19 @@ const StoreInfo = ({ store }) => {
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 w-24 text-gray-500">영업시간</span>
-              <span>{store.businessHours || "평일 09:00 - 18:00"}</span>
+              <span>{store.businessHours || store.business_hours || "평일 09:00 - 18:00"}</span>
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 w-24 text-gray-500">휴무일</span>
-              <span>{store.closedDays ? (Array.isArray(store.closedDays) ? store.closedDays.join(', ') : store.closedDays) : "토요일, 일요일, 공휴일"}</span>
+              <span>
+                {store.closedDays 
+                  ? (Array.isArray(store.closedDays) 
+                    ? store.closedDays.join(', ') 
+                    : store.closedDays) 
+                  : (store.closed_days && Array.isArray(store.closed_days) 
+                    ? store.closed_days.join(', ') 
+                    : "토요일, 일요일, 공휴일")}
+              </span>
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 w-24 text-gray-500">주요 상품</span>
@@ -216,6 +234,8 @@ export default function StoreDetailPage() {
   const [activeCategory, setActiveCategory] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
   const [notices, setNotices] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // 데이터 가져오기
   useEffect(() => {
@@ -223,28 +243,45 @@ export default function StoreDetailPage() {
       try {
         setLoading(true);
 
+        // 사용자 인증 상태 확인
+        // const authStatus = userService.isAuthenticated();
+        // setIsAuthenticated(authStatus);
+
         // 사용자 프로필 가져오기
         const profile = userService.getUserProfile();
         setUserProfile(profile);
 
         // 가게 기본 정보 가져오기
-        const storeBasic = storeService.getStoreById(parseInt(storeId));
-
-        // 가게 상세 정보 가져오기
-        const storeDetails = storeService.getStoreDetails(storeId);
-
-        // 기본 정보와 상세 정보 합치기
-        const storeData = {
-          ...storeBasic,
-          ...storeDetails,
-        };
+        // storeService.getStoreById()가 아직 작성되지 않았다면 userService.getAllStores()에서 ID로 찾기
+        let storeData;
+        if (typeof storeService.getStoreById === 'function') {
+          const storeBasic = storeService.getStoreById(storeId);
+          // 가게 상세 정보 가져오기 (있다면)
+          const storeDetails = typeof storeService.getStoreDetails === 'function' 
+            ? storeService.getStoreDetails(storeId)
+            : {};
+          
+          // 기본 정보와 상세 정보 합치기
+          storeData = { ...storeBasic, ...storeDetails };
+        } else {
+          // 대체 방법: 모든 가게 목록에서 ID로 찾기
+          const allStores = userService.getAllStores();
+          storeData = allStores.find(s => s.id === storeId || s.id === parseInt(storeId));
+        }
 
         setStore(storeData);
 
         // 가게의 상품 목록 가져오기
-        const storeProducts = storeService.getStoreProducts(storeId);
+        const storeProducts = userService.getStoreProducts(storeId);
         setProducts(storeProducts);
         setFilteredProducts(storeProducts);
+
+        // 좋아요 상태 확인 (인증된 사용자만)
+        if (authStatus) {
+          const likedStores = userService.getLikedStores();
+          const storeIsLiked = likedStores.some(s => s.id === storeId || s.id === parseInt(storeId));
+          setIsLiked(storeIsLiked);
+        }
 
         // 가게 설정 카테고리 불러오기 (없으면 제품에서 추출)
         let productCategories = ["전체"];
@@ -254,27 +291,35 @@ export default function StoreDetailPage() {
           productCategories = ["전체", ...storeData.productCategories];
         } else {
           // 제품에서 카테고리 추출
-          productCategories = ["전체", ...new Set(storeProducts.map(p => p.category))];
+          const uniqueCategories = new Set(storeProducts.map(p => p.category).filter(Boolean));
+          productCategories = ["전체", ...uniqueCategories];
         }
 
         setCategories(productCategories);
 
-        // 공지사항 불러오기 (임시 데이터)
-        const mockNotices = storeService.getStoreNotices(storeId) || [
-          {
-            title: "3월 신규 상품 입고 안내",
-            date: "2025-03-01",
-            content: "봄을 맞아 신선한 봄나물과 딸기가 입고되었습니다. 많은 관심 부탁드립니다."
-          },
-          {
-            title: "배송 지연 안내",
-            date: "2025-02-25",
-            content: "최근 기상 악화로 인해 일부 지역 배송이 1-2일 지연될 수 있습니다. 양해 부탁드립니다."
-          }
-        ];
-
-        setNotices(mockNotices);
-
+        // 공지사항 불러오기
+        let storeNotices = [];
+        if (typeof storeService.getStoreNotices === 'function') {
+          storeNotices = storeService.getStoreNotices(storeId) || [];
+        }
+        
+        // 공지사항이 없으면 기본 공지사항 제공
+        if (storeNotices.length === 0) {
+          storeNotices = [
+            {
+              title: "3월 신규 상품 입고 안내",
+              date: "2025-03-01",
+              content: "봄을 맞아 신선한 봄나물과 딸기가 입고되었습니다. 많은 관심 부탁드립니다."
+            },
+            {
+              title: "배송 지연 안내",
+              date: "2025-02-25",
+              content: "최근 기상 악화로 인해 일부 지역 배송이 1-2일 지연될 수 있습니다. 양해 부탁드립니다."
+            }
+          ];
+        }
+        
+        setNotices(storeNotices);
         setLoading(false);
       } catch (error) {
         console.error("데이터 가져오기 실패:", error);
@@ -298,14 +343,54 @@ export default function StoreDetailPage() {
     }
   };
 
+  // 좋아요 토글 함수
+  const handleToggleLike = () => {
+    if (!isAuthenticated) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+
+    const result = userService.toggleLikeStore(storeId);
+    setIsLiked(result);
+  };
+
+  // 문의하기 함수
+  const handleInquiry = () => {
+    if (!isAuthenticated) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+    
+    // 실제 구현은 여기에 추가
+    alert(`${store.name}에 문의합니다.`);
+  };
+
   // 장바구니에 추가 함수
   const addToCart = (product) => {
-    alert(`${product.name}을(를) 구매합니다!`);
+    if (!isAuthenticated) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+
+    const cartItem = {
+      product: product,
+      quantity: 1,
+      option: null // 상품 옵션이 있다면 여기에 추가
+    };
+
+    userService.addToCart(cartItem);
+    alert(`${product.name}을(를) 장바구니에 담았습니다!`);
   };
 
   // 예약 구매 함수
   const reserveProduct = (product) => {
+    if (!isAuthenticated) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+    
     alert(`${product.name}을(를) 예약 구매합니다!`);
+    // 여기에 예약 구매 로직 추가
   };
 
   return (
@@ -330,7 +415,12 @@ export default function StoreDetailPage() {
             </div>
 
             {/* 가게 정보 */}
-            <StoreInfo store={store} />
+            <StoreInfo 
+              store={store} 
+              isLiked={isLiked} 
+              onToggleLike={handleToggleLike} 
+              onInquiry={handleInquiry}
+            />
 
             {/* 공지사항 섹션 */}
             <div className="mt-8">
@@ -355,8 +445,8 @@ export default function StoreDetailPage() {
                     <ProductCard
                       key={product.id}
                       product={product}
-                      onAddToCart={addToCart}
-                      onReserve={reserveProduct}
+                      onAddToCart={() => addToCart(product)}
+                      onReserve={() => reserveProduct(product)}
                     />
                   ))
                 ) : (
@@ -378,7 +468,7 @@ export default function StoreDetailPage() {
             </svg>
             <h3 className="mt-2 text-lg font-medium text-gray-900">가게 정보를 찾을 수 없습니다</h3>
             <p className="mt-1 text-gray-500">잘못된 접근이거나 더 이상 존재하지 않는 가게입니다.</p>
-            <Link href="/" className="mt-6 inline-block px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-50">
+            <Link href="/user" className="mt-6 inline-block px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-50">
               홈으로 돌아가기
             </Link>
           </div>
